@@ -42,8 +42,8 @@ android {
 dependencies {
 
     implementation files('../libs/bogusgpxparser.jar')
+    //Implement Simple GPX Parser
     implementation files('../libs/lib.jar')
-    implementation files('../libs/ll_lib.jar')
 
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'

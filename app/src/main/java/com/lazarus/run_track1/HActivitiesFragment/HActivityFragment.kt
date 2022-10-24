@@ -3,8 +3,6 @@ package com.lazarus.run_track1.HActivitiesFragment
 import SimpleGPX.*
 import SimpleGPX.SimpleGPXParser
 
-import ll.SimpleGPX.*;
-
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -30,7 +28,6 @@ class HActivityFragment : Fragment() {
 
     //private var binding: ActivitiesBinding? = null
     private val activities = ArrayList<Button>()
-    private var ll_gpx: ll.SimpleGPX.GPX? = null
     private var gpx: SimpleGPX.GPX? = null
     private var viewActivityFragment: ViewActivityFragment? = null
     //private var passGPX: PassGPX? = null
@@ -57,7 +54,7 @@ class HActivityFragment : Fragment() {
         Log.d("nav","viewcreatedh")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
-                i_really_just_do_not_know_how_to_name_this_function_and_i_am_just_too_tired_to_care_at_this_point_this_is_bogus()
+                findFiles()
             } catch (exception: IOException) {
                 exception.printStackTrace()
             }
@@ -66,14 +63,7 @@ class HActivityFragment : Fragment() {
             showFiles(dir.listFiles())
         }
         for (i in fileNames!!.indices) {
-            val activity = Button(this.context)
-            activity.setBackgroundColor(Color.rgb(24, 200, 48))
-            activity.height = pixels
-            activity.alpha = 0.1f
-            activity.text = fileNames!![i]
-            activity.setTextColor(Color.rgb(255, 0, 54));
-            binding.hActivityScroll.addView(activity);
-            activities.add(activity)
+            createButton(i);
         }
 
         //this.activity?.setContentView(binding.root);
@@ -100,33 +90,8 @@ class HActivityFragment : Fragment() {
                 fileNameBundle.putString("gpx_file",fileName);
                 Log.d("time_putstring" , LocalDateTime.now().toString())
                 val bogusGPXParser = SimpleGPXParser("file://$fileName")
-                //Log.d("p-point", fileName);
-                //val gpxstring  = ll.SimpleGPX.Stringify("$fileName")
-                //val path:Uri = Uri.fromFile("file://$fileName")
-                //sendEmail("GPX", path, this.context)
-                //val llgpxParser = ll.SimpleGPX.SimpleGPXParser("file://$fileName");
-                //Log.d("time_start_array_parse",LocalDateTime.now().toString());
-                //gpx = bogusGPXParser.parseGPX();
-                //Log.d("time_start_list_parse", LocalDateTime.now().toString());
-                //ll_gpx = llgpxParser.parseGPX();
-                //Log.d("time_parsegpx", LocalDateTime.now().toString())
-                //val wpt = gpx!!.waypoints[0]
-                //Log.d("wptact", wpt.latitude.toString())
                 val newTag = "track"
-                //val gpxstring  = Stringify("$fileName")
-                //sendEmail("GPX",gpxstring,this.context);
-
-
-                //val samplegpx = GPXify("")
-
-                //val stringify = Stringify(gpx as GPX, "/data/user/0/com.lazarus.run_track1/files/tracks/ttrest.gpx")
-                //Log.d("p-point", stringify);
-                //val parcelableGPX = ParcelableGPX(gpx!!.creator, gpx!!.version, gpx!!.waypoints, gpx!!.tracks);
-                //val gpxBundle = Bundle();
-                //gpxBundle.putParcelable("gpx_track", parcelableGPX);
-                //Log.d("time_putparcel", LocalDateTime.now().toString())
                 viewActivityFragment!!.arguments = fileNameBundle;
-                //Log.d("time_putstring" , LocalDateTime.now().toString())
                 //if (gpx != null) {
                     this.requireActivity().supportFragmentManager
                         .beginTransaction()
@@ -156,7 +121,7 @@ class HActivityFragment : Fragment() {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Throws(IOException::class)
-    private fun i_really_just_do_not_know_how_to_name_this_function_and_i_am_just_too_tired_to_care_at_this_point_this_is_bogus() {
+    private fun findFiles() {
         fileNames = ArrayList()
         val dir = Paths.get(this.context?.filesDir.toString() + "/tracks")
         Files.walk(dir).forEach { path: Path ->
@@ -182,6 +147,17 @@ class HActivityFragment : Fragment() {
 
     private fun deleteTrack(button: Button){
 
+    }
+
+    private fun createButton(i:Int){
+        val activity = Button(this.context)
+        activity.setBackgroundColor(Color.rgb(24, 200, 48))
+        activity.height = pixels;
+        activity.alpha = 0.0f;
+        activity.text = fileNames!![i];
+        activity.setTextColor(Color.rgb(255, 0, 54));
+        binding.hActivityScroll.addView(activity);
+        activities.add(activity);
     }
 
 }

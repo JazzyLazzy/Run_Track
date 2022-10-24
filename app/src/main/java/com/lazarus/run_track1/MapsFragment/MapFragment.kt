@@ -218,16 +218,6 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         parentLayout.addView(pauseButton);
         parentLayout.addView(unpauseButton);
 
-        /*for (i in fileNames.indices) {
-            val activity = Button(this.context)
-            activity.setBackgroundColor(Color.rgb(244, 9, 48))
-            activity.height = pixels
-            activity.alpha = 0.1f
-            activity.setText(fileNames.get(i))
-            parentLayout.addView(activity)
-            activities.add(activity)
-        }*/
-
         //do some voodoo to make button appear on top of map
         this.activity?.addContentView(parentLayout, ConstraintLayout.LayoutParams(
             ConstraintLayout.LayoutParams.MATCH_PARENT,
