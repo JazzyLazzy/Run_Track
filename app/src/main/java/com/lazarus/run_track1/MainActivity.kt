@@ -14,8 +14,10 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.preference.PreferenceManager
 import com.google.android.material.navigation.NavigationBarView
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.lazarus.run_track1.HActivitiesFragment.HActivityFragment
 import com.lazarus.run_track1.MapsFragment.MapFragment
+import com.lazarus.run_track1.SettingsFragment.SettingsFragment
 import com.lazarus.run_track1.databinding.ActivityMainBinding
 import org.osmdroid.config.Configuration
 import java.io.File
@@ -97,6 +99,10 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_activities -> {
                     selectedFragment = HActivityFragment()
                     changeFragment(selectedFragment, "Activities")
+                }
+                R.id.nav_settings -> {
+                    selectedFragment = SettingsFragment()
+                    changeFragment(selectedFragment, "Settings")
                 }
             }
             return true

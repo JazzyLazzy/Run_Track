@@ -39,6 +39,7 @@ android {
     }
 }
 
+
 dependencies {
 
     implementation files('../libs/bogusgpxparser.jar')
@@ -55,4 +56,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     implementation 'org.osmdroid:osmdroid-android:6.1.13'
     implementation 'androidx.preference:preference:1.2.0'
+
+    implementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'
+
 }

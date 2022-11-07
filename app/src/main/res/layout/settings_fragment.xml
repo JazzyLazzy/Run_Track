@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.lazarus.run_track1.HActivitiesFragment.HActivityFragment"
+    tools:context="com.lazarus.run_track1.SettingsFragment.SettingsFragment"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:fillViewport="true"
         tools:ignore="UselessParent"
         >
-
         <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/h_activity_scroll"
+            android:id="@+id/settings_scroll"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
-
             <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/license_button"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="50dp"
                 android:background="#FF0000"
-                android:alpha="1"
-                android:backgroundTint="#FF0000"/>
+                android:backgroundTint="#FF0000"
+                android:text="License"
+                />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.core.widget.NestedScrollView>
-
 </androidx.appcompat.widget.LinearLayoutCompat>

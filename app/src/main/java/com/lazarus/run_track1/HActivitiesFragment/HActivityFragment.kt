@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
+import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import com.lazarus.run_track1.ParcelableGPX
 import com.lazarus.run_track1.R
@@ -150,10 +151,10 @@ class HActivityFragment : Fragment() {
     }
 
     private fun createButton(i:Int){
-        val activity = Button(this.context)
+        val activity = AppCompatButton(this.requireContext());
         activity.setBackgroundColor(Color.rgb(24, 200, 48))
         activity.height = pixels;
-        activity.alpha = 0.0f;
+        activity.alpha = 1.0f;
         activity.text = fileNames!![i];
         activity.setTextColor(Color.rgb(255, 0, 54));
         binding.hActivityScroll.addView(activity);
