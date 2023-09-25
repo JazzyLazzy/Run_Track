@@ -8,8 +8,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.preference.PreferenceManager
@@ -17,18 +19,32 @@ import com.google.android.material.navigation.NavigationBarView
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.lazarus.run_track1.HActivitiesFragment.HActivityFragment
 import com.lazarus.run_track1.MapsFragment.MapFragment
+import com.lazarus.run_track1.NativeJNI.MonJNI
 import com.lazarus.run_track1.SettingsFragment.SettingsFragment
 import com.lazarus.run_track1.databinding.ActivityMainBinding
 import org.osmdroid.config.Configuration
+import org.osmdroid.views.MapView
 import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding;
+    lateinit var binding: ActivityMainBinding
+        private set
+    private var mMapView:MapView? = null;
+    private var mScrollTest:ConstraintLayout? = null;
+
+    fun get_map_view():MapView{
+        if (mMapView == null){
+            mMapView = MapView(this.applicationContext);
+        }
+        return MapView(this.applicationContext);
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val jni = MonJNI().helloWorld();
+        println(jni);
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 
@@ -67,16 +83,10 @@ class MainActivity : AppCompatActivity() {
             Log.d("fragment","duplicating")
             val manager: FragmentManager = supportFragmentManager;
             val transaction: FragmentTransaction = manager.beginTransaction();
-            transaction.add(R.id.container, MapFragment(), "MAP_FRAGMENT");
+            transaction.add(R.id.fragment_container, MapFragment(), "MAP_FRAGMENT");
             transaction.addToBackStack(null);
             transaction.commit();
         }
-
-
-    }
-
-    override fun onStart(){
-        super.onStart();
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -111,7 +121,7 @@ class MainActivity : AppCompatActivity() {
         private fun changeFragment(selectedFragment: Fragment, tag: String) {
             supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.container, selectedFragment, tag)
+                .replace(R.id.fragment_container, selectedFragment, tag)
                 .commit()
         }
     }
@@ -137,6 +147,7 @@ class MainActivity : AppCompatActivity() {
         requestPermissions(
             arrayOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -158,6 +169,10 @@ class MainActivity : AppCompatActivity() {
                 && ContextCompat.checkSelfPermission(
             this, Manifest.permission.ACCESS_COARSE_LOCATION
         ) ==
+                PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
+        ) ==
                 PackageManager.PERMISSION_GRANTED)
         val ReadWriteFiles = (ContextCompat.checkSelfPermission(
             this, Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -169,4 +184,13 @@ class MainActivity : AppCompatActivity() {
                 PackageManager.PERMISSION_GRANTED)
         return GPSPermissionGranted && ReadWriteFiles
     }
+}
+
+fun usineLiaisonActivité(activité:FragmentActivity?):ActivityMainBinding{
+    val activitéPrincipale = activité as MainActivity
+    return activitéPrincipale.binding
+}
+
+fun loadLibrary(){
+    System.loadLibrary("native");
 }

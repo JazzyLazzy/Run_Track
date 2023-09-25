@@ -3,16 +3,28 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.3536458333333333" />
-        <entry key="app/src/main/res/layout/h_activity_fragment.xml" value="0.2375" />
+        <entry key="../../../../layout/custom_preview.xml" value="0.11330935251798561" />
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.3225" />
+        <entry key="app/src/main/res/drawable/ic_drawing.xml" value="0.3225" />
+        <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.3225" />
+        <entry key="app/src/main/res/drawable/ic_license.xml" value="0.286" />
+        <entry key="app/src/main/res/drawable/ic_locationtrackrate.xml" value="0.33" />
+        <entry key="app/src/main/res/drawable/ic_mode_switch.xml" value="0.286" />
+        <entry key="app/src/main/res/drawable/ic_track_settings.xml" value="0.286" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/h_activity_fragment.xml" value="0.19921875" />
         <entry key="app/src/main/res/layout/license_dialogue.xml" value="0.26094890510948904" />
+        <entry key="app/src/main/res/layout/location_track_rate_fragment.xml" value="0.2774252039891206" />
+        <entry key="app/src/main/res/layout/map_fragment.xml" value="0.22" />
         <entry key="app/src/main/res/layout/name_track_dialogue.xml" value="0.1765625" />
-        <entry key="app/src/main/res/layout/settings_fragment.xml" value="0.1921875" />
+        <entry key="app/src/main/res/layout/objet_activite.xml" value="0.67" />
+        <entry key="app/src/main/res/layout/settings_fragment.xml" value="0.31871525633106856" />
+        <entry key="app/src/main/res/layout/vue_d_avancemet.xml" value="0.33" />
         <entry key="app/src/main/res/menu/bottom_navigation_menu.xml" value="0.3536458333333333" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="jbr-17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

@@ -9,10 +9,10 @@ import android.graphics.Color
 import android.os.*
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.*
 import com.lazarus.run_track1.MainActivity
 import com.lazarus.run_track1.MapsFragment.BROADCAST_ACTION
-import android.os.Messenger
 import com.lazarus.run_track1.MessageValues
 import com.lazarus.run_track1.ParcelableTrackPoint
 
@@ -28,15 +28,17 @@ class TrackerService : Service() {
     private var GPS_TRACKING = false
     private val FOREGROUND_ID = 1337
     private var mMessenger:Messenger? = null;
+    private var mBoundTrackerService:BoundTrackerService? = null;
 
-    inner class TrackerBinder : Binder(){
+    companion object {
+        private var instance: TrackerService? = null
 
-        val service:TrackerService
-            get() = this@TrackerService;
-
+        fun getInstance(): TrackerService? {
+            return instance
+        }
     }
 
-    /*inner class IncomingHandler(
+    inner class IncomingHandler(
         context: Context,
         private val applicationContext: Context = context.applicationContext
     ) : Handler(Looper.getMainLooper()) {
@@ -62,7 +64,7 @@ class TrackerService : Service() {
                     GPS_TRACKING = false
                     super.handleMessage(msg)
                 }
-                MessageValues.MSG_GET_TRKPT.value -> {
+                MessageValues.MSG_REÇEVOIR_TRKPT.value -> {
                     super.handleMessage(msg)
                 }
                 MessageValues.MSG_GET_GPX.value -> {
@@ -71,14 +73,12 @@ class TrackerService : Service() {
                 else -> super.handleMessage(msg)
             }
         }
-    }*/
-
+    }
 
     override fun onCreate() {
         super.onCreate();
 
         writeGPSTrack();
-        //mMessenger = Messenger(IncomingHandler(this.applicationContext));
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(this.applicationContext)
         locationRequest = LocationRequest.create()
@@ -94,7 +94,7 @@ class TrackerService : Service() {
         createNotificationChannel()
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent =
-            PendingIntent.getActivity(this.applicationContext, 0, notificationIntent, 0)
+            PendingIntent.getActivity(this.applicationContext, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
 
         val notification = NotificationCompat.Builder(this.applicationContext, "ChannelId1")
             .setContentTitle("GPSTrack")
@@ -108,7 +108,6 @@ class TrackerService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? {
-        //TODO("Not yet implemented")
         return mMessenger!!.binder;
     }
 
@@ -162,8 +161,8 @@ class TrackerService : Service() {
                     location.time
                 )
             )
-            locationHeap.add(trkPoint)
-            //sendTrkPt(trkPoint);
+            locationHeap.add(trkPoint);
+            sendTrkPt(trkPoint);
         }
     }
 
@@ -198,8 +197,11 @@ class TrackerService : Service() {
                 trackPoint.elevation,
                 trackPoint.time);
         bundle.putParcelable("track_point", parcelableTrackPoint);
-        val msg = Message.obtain(null, MessageValues.MSG_GET_TRKPT.value);
-        msg.data = bundle;
-        mClients[0].send(msg);
+        //val msg = Message.obtain(null, MessageValues.MSG_REÇEVOIR_TRKPT.value);
+        //msg.data = bundle;
+        //mClients[0].send(msg);
+        val updateIntent = Intent("LOCATION_UPDATE");
+        updateIntent.putExtra("data point", bundle);
+        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(updateIntent);
     }
 }

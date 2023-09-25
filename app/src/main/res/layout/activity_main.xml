@@ -7,6 +7,15 @@
     tools:context=".MainActivity"
     android:id="@+id/container">
 
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintTop_toTopOf="@id/container">
+
+    </FrameLayout>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
@@ -16,5 +25,77 @@
         app:layout_constraintBottom_toBottomOf="@id/container"
         >
     </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/l_avancement"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@android:color/white"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/ligne_de_guide_gauche"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.33" />
+
+        <TextView
+            android:id="@+id/avancement_à_distance"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="0km"
+            android:textColor="@android:color/black"
+            />
+
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/ligne_de_guide_droite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.67" />
+
+        <TextView
+            android:id="@+id/avancement_aux_temps"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:text="0min"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/ligne_de_guide_droite"
+            app:layout_constraintStart_toStartOf="@+id/ligne_de_guide_gauche"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textColor="@android:color/black"/>
+
+        <TextView
+            android:id="@+id/avancement_au_hauteur"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:text="0m"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/ligne_de_guide_droite"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textColor="@android:color/black"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <LinearLayout
+        android:id="@+id/plaque_a_bas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        app:layout_constraintTop_toTopOf="@id/l_avancement"
+        app:layout_constraintBottom_toBottomOf="@id/l_avancement"
+        app:layout_constraintStart_toStartOf="@id/l_avancement"
+        app:layout_constraintEnd_toEndOf="@id/l_avancement"
+        android:background="?attr/selectableItemBackground"
+        android:orientation="vertical" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

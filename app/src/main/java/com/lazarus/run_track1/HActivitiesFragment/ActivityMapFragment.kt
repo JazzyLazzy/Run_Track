@@ -6,14 +6,18 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.LinearLayout
+import androidx.activity.addCallback
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
-import com.lazarus.run_track1.ParcelableGPX
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.lazarus.run_track1.MapsFragment.accèsVuesActivité
 import com.lazarus.run_track1.R
+import com.lazarus.run_track1.usineLiaisonActivité
+import kotlinx.android.synthetic.main.activity_main.*
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.CopyrightOverlay
@@ -26,13 +30,11 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.text.DateFormat
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 
-class ViewActivityFragment : Fragment() {
+
+class ActivityMapFragment : Fragment() {
 
     private lateinit var mMapView: MapView;
     private lateinit var mRotationGestureOverlay: RotationGestureOverlay;
@@ -45,6 +47,15 @@ class ViewActivityFragment : Fragment() {
     private var scale = 0f
     private var pixels = 0
     private lateinit var myTrack:Polyline;
+    private lateinit var activityMapFragment:ActivityMapFragment;
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState);
+        requireActivity().onBackPressedDispatcher.addCallback {
+            parentFragmentManager.popBackStack();
+            accèsVuesActivité(activity, View.VISIBLE);
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -85,6 +96,14 @@ class ViewActivityFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState);
         Log.d("time_viewcreate", LocalDateTime.now().toString())
+
+        val liaisonActivité = usineLiaisonActivité(activity);
+        liaisonActivité.bottomNavigation.visibility = GONE;
+
+        val plaqueBas = exempleNouveau();
+        plaqueBas.show(parentFragmentManager, plaqueBas.tag)
+
+
         mLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), mMapView)
         mLocationOverlay.enableMyLocation();
         mMapView.overlays.add(this.mLocationOverlay);
@@ -126,28 +145,33 @@ class ViewActivityFragment : Fragment() {
             }
         }
         var distance = 0.0;
+        var tE = 0.0;
+        var eG = 0.0;
+        var eL = 0.0;
         var pace = Pace(0, 0.0);
         val statsStruct = StatStruct();
-        Log.d("lengths", parcelableGPX.tracks[0].trksegs.size.toString());
+        Log.d("lengths", parcelableGPX.tracks[0].trksegs[0].trkpts.size.toString());
         for (i in parcelableGPX.tracks){
             for (j in i.trksegs){
                 Log.d("distance", distance.toString());
-                Log.d("pt1", j.trkpts.first().longitude.toString());
-                Log.d("pt2", j.trkpts.last().longitude.toString());
+                Log.d("pt1", j.trkpts.first().elevation.toString());
+                Log.d("pt2", j.trkpts.last().elevation.toString());
                 val statStruct = calculateStats(j);
+                Log.d("ele diff ", statStruct.ElevationStruct().totalElevation.toString());
                 distance += statStruct.distance;
                 pace.minutes += statStruct.pace!!.minutes;
                 pace.seconds += statStruct.pace!!.seconds;
-                statsStruct.ElevationStruct().totalElevation += statStruct.ElevationStruct().totalElevation;
-                statsStruct.ElevationStruct().elevationGain += statStruct.ElevationStruct().elevationGain;
-                statsStruct.ElevationStruct().elevationLoss += statStruct.ElevationStruct().elevationLoss;
+                tE += statStruct.ElevationStruct().totalElevation;
+                eG += statStruct.ElevationStruct().elevationGain;
+                eL += statStruct.ElevationStruct().elevationLoss;
             }
         }
         pace.minutes /= parcelableGPX.tracks[0].trksegs.size;
         pace.seconds /= parcelableGPX.tracks[0].trksegs.size;
+        afficherLesStatistiques(distance.toString(), tE.toString(), pace.toString());
         Log.d("time_endloop", LocalDateTime.now().toString());
-        Log.d("distance",statsStruct.distance.toString());
-        Log.d("elevation",statsStruct.ElevationStruct().totalElevation.toString())
+        Log.d("distance",distance.toString());
+        Log.d("elevation",tE.toString())
         //Log.d("distance", distance.toString());
         //myTrack.addPoint(GeoPoint(125.2,-42.43, 8.21))
         //myTrack.addPoint(GeoPoint(15.2,2.43, 188.21))
@@ -165,6 +189,14 @@ class ViewActivityFragment : Fragment() {
         Log.d("nav",mMapView.parent.toString())
     }
 
+    private fun afficherLesStatistiques(distance:String, élévation:String, temps:String){
+        var liaisonActivité = usineLiaisonActivité(activity);
+        liaisonActivité.avancementAuHauteur.text = élévation;
+        liaisonActivité.avancementDistance.text = distance;
+        liaisonActivité.avancementAuxTemps.text = temps;
+    }
+
+    // Oh, je l'ai copié de MapFragment.
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Throws(IOException::class)
     private fun i_really_just_do_not_know_how_to_name_this_function_and_i_am_just_too_tired_to_care_at_this_point_this_is_bogus() {

@@ -5,6 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.lazarus.run_track1.MainActivity
+import com.lazarus.run_track1.R
+import com.lazarus.run_track1.SettingsFragment.LocationTrackRateFragment.LocationTrackRateFragment
 import com.lazarus.run_track1.databinding.SettingsFragmentBinding
 
 class SettingsFragment : Fragment() {
@@ -36,6 +39,13 @@ class SettingsFragment : Fragment() {
         binding.licenseButton.setOnClickListener {
             val licenseDialogue = LicenseDialogue();
             licenseDialogue.show(childFragmentManager, licenseDialogue.tag);
+        }
+        binding.locationTrackRateButton.setOnClickListener {
+            val locationTrackRateFragment = LocationTrackRateFragment();
+            this.requireActivity().supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, locationTrackRateFragment, "LocationTrackRate")
+                .commit()
         }
     }
 
