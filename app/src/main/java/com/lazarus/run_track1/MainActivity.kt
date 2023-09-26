@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
 
         if (!werePermissionsGranted()!!) {
+            Log.d("Permissions:", "Requesting");
             requestPermissions()
         }
         val connectivityManager =
