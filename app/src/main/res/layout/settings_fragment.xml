@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.lazarus.run_track1.SettingsFragment.SettingsFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:backgroundTint="#000000"
+    android:id="@+id/scroll_test">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="UselessParent"
+        tools:layout_editor_absoluteY="100dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/settings_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/license_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_license"
+                android:gravity="center_vertical"
+                android:drawablePadding="10dp"
+                android:background="#171717"
+                android:backgroundTint="#171717"
+                android:text="Legal"
+                android:textAllCaps="false"
+                android:textColor="#dcfaeb"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/location_track_rate_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#171717"
+                android:backgroundTint="#171717"
+                android:drawableStart="@drawable/ic_locationtrackrate"
+                android:drawablePadding="10dp"
+                android:gravity="center_vertical"
+                android:text="Location Track Rate"
+                android:textAllCaps="false"
+                android:textColor="#dcfaeb"
+                app:layout_constraintTop_toBottomOf="@+id/license_button" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/mode_switch_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#171717"
+                android:backgroundTint="#171717"
+                android:drawableStart="@drawable/ic_mode_switch"
+                android:drawablePadding="15dp"
+                android:gravity="center_vertical"
+                android:text="Themes"
+                android:textAllCaps="false"
+                android:textColor="#dcfaeb"
+                app:layout_constraintTop_toBottomOf="@+id/location_track_rate_button" />
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,7 +1,9 @@
 package com.lazarus.run_track1.MapsFragment
 
-import SimpleGPX.*
+//import kotlinx.android.synthetic.main.activity_main.*
+//import kotlinx.android.synthetic.main.activity_main.view.*
 
+import SimpleGPX.*
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.*
@@ -14,25 +16,34 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.lazarus.run_track1.*
-
+import com.lazarus.run_track1.Service.BoundTrackerService
 import com.lazarus.run_track1.Service.NameTrackDialogue
 import com.lazarus.run_track1.Service.NameTrackDialogueService
 import com.lazarus.run_track1.Service.TrackerService
+import com.lazarus.run_track1.databinding.MapFragmentBinding
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.view.*
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
-
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.CopyrightOverlay
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-
+import org.w3c.dom.Text
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -40,11 +51,13 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
-import java.util.function.Consumer
-import kotlin.io.path.deleteIfExists
+import kotlin.math.*
+import kotlin.time.measureTime
 
 
 const val BROADCAST_ACTION = "com.lazarus.run_track1.MapFragment.MAPSFRAGMENT.TRACKRECEIVER";
@@ -60,9 +73,11 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
     private lateinit var endButton: Button;
     private lateinit var pauseButton: Button;
     private lateinit var unpauseButton: Button;
+    private lateinit var statsLayout: StatsLayout;
     private lateinit var bLl:LinearLayout;
     private lateinit var parentLayout: ConstraintLayout;
     private lateinit var fileNames:ArrayList<String>;
+    private lateinit var binding:MapFragmentBinding;
     private var activities = ArrayList<Button>();
     private var mtag: String? = null
     private var scale = 0f
@@ -75,43 +90,77 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
     private var isBound:Boolean? = null;
     private var mService:Messenger? = null;
     private lateinit var mMessenger:Messenger;
+    private lateinit var foregroundService: TrackerService;
+    private var isServiceBound = false
+    private var distanceTraveled = 0.0;
+    private var timeElapsed = 0;
+    private var elevationGained = 0.0;
+    private var previousElevation:Double? = null;
+    private var previousLocation:GeoPoint? = null;
+    private var originalTime:Long? = null;
 
-    private var connection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
-            Log.d("track:","connected");
-            mService = Messenger(iBinder);
-            try{
-                val msg = Message.obtain(null, MessageValues.MSG_REGISTER_CLIENT.value);
-                msg.replyTo = mMessenger;
-                mService?.send(msg);
-            }catch (err:RemoteException){
-
-            }
+    /*private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as BoundTrackerService.LocalBinder
+            foregroundService = binder.getService()
+            isServiceBound = true
+            foregroundService.setCallback(serviceCallback)
         }
 
-        override fun onServiceDisconnected(componentName: ComponentName) {
-           /* try{
-                val msg = Message.obtain(null, MessageValues.MSG_UNREGISTER_CLIENT.value);
-                msg.replyTo = mMessenger;
-                mService?.send(msg);
-            }catch(err:RemoteException){
-
-            }*/
-            mService = null;
+        override fun onServiceDisconnected(name: ComponentName?) {
+            boundService = null
+            isServiceBound = false
         }
-    }
+    }*/
 
     private val TrackReceiver:BroadcastReceiver = object : BroadcastReceiver(){
         override fun onReceive(context: Context?, intent: Intent?) {
             val trkpts = ArrayList<TrackPoint>()
-            val fileName = intent!!.getStringExtra("trackpoints")
-            Log.d("bundle",fileName!!)
-            val readGPX = SimpleGPXParser("$fileName")
-            //Log.d("bundle", Stringify(fileName))
-            val tracks = readGPX.parseGPX().tracks
-            readGPX.deleteGPXFile();
-            Log.d("bundle", tracks[0].name!!)
-            gpx.addTracks(tracks)
+            if (intent!!.action == "LOCATION_UPDATE"){
+                val bundle = intent.getBundleExtra("data point");
+                val trkPoint = bundle!!.getParcelable<ParcelableTrackPoint>("track_point")
+                if (trkPoint != null) {
+                    val geoPoint =
+                        GeoPoint(trkPoint.latitude, trkPoint.longitude, trkPoint.elevation);
+                    if (myTrack != null) {
+                        myTrack!!.addPoint(geoPoint);
+                    } else {
+                        myTrack = Polyline(mMapView);
+                        mMapView.overlays.add(myTrack);
+                        myTrack!!.addPoint(geoPoint);
+                    }
+                    if (previousElevation == null) {
+                        previousElevation = trkPoint.elevation;
+                    } else {
+                        elevationGained += trkPoint.elevation - previousElevation!!;
+                        previousElevation = trkPoint.elevation;
+                    }
+                    if (previousLocation == null) {
+                        previousLocation = geoPoint;
+                    } else {
+                        distanceTraveled += haversineDistance(previousLocation!!, geoPoint);
+                        previousLocation = geoPoint;
+                    }
+                    requireActivity().findViewById<TextView>(R.id.avancement_au_hauteur)?.text =
+                        roundTo3DecimalPlaces(elevationGained);
+                    requireActivity().findViewById<TextView>(R.id.avancement_à_distance)?.text =
+                        roundTo3DecimalPlaces(distanceTraveled / 1000);
+                    if (android.os.Build.VERSION.SDK_INT >= 26) {
+                        requireActivity().findViewById<TextView>(R.id.avancement_aux_temps)?.text =
+                            roundTo3DecimalPlaces((((Instant.now().epochSecond - originalTime!!))/60) / (distanceTraveled + 0.001 / 1000));
+                    }
+                }
+            }else{
+                val fileName = intent.getStringExtra("trackpoints")
+                Log.d("bundle",fileName!!)
+                val readGPX = SimpleGPXParser("$fileName")
+                //Log.d("bundle", Stringify(fileName))
+                val tracks = readGPX.parseGPX().tracks
+                readGPX.deleteGPXFile();
+                Log.d("bundle", tracks[0].name!!)
+                gpx.addTracks(tracks)
+            }
+
             /*val ptp:ArrayList<ParcelableTrackPoint> =
                 intent!!.getParcelableArrayListExtra<ParcelableTrackPoint>("trackpoints")
                         as ArrayList<ParcelableTrackPoint>
@@ -136,20 +185,19 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         }
     }
 
-    /*@SuppressLint("HandlerLeak")
-    inner class IncomingHandler(
-        context: Context,
-        private val applicationContext: Context = context.applicationContext
-    ) : Handler(Looper.getMainLooper()) {
+    //@SuppressLint("HandlerLeak")
+    private val gestionnaireEntrant = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
-                MessageValues.MSG_GET_TRKPT.value -> {
-                    val trkPoint = msg.data.getParcelable<ParcelableTrackPoint>("track_point") as TrackPoint;
-                    gpx.addTrackPointToEnd(trkPoint);
-                    val geoPoint = GeoPoint(trkPoint.latitude, trkPoint.longitude, trkPoint.elevation);
-                    if (myTrack != null){
+                MessageValues.MSG_REÇEVOIR_TRKPT.value -> {
+                    val trkPoint =
+                        msg.data.getParcelable<ParcelableTrackPoint>("track_point") as TrackPoint;
+                    //gpx.addTrackPointToEnd(trkPoint);
+                    val geoPoint =
+                        GeoPoint(trkPoint.latitude, trkPoint.longitude, trkPoint.elevation);
+                    if (myTrack != null) {
                         myTrack!!.addPoint(geoPoint);
-                    }else{
+                    } else {
                         myTrack = Polyline(mMapView);
                         mMapView.overlays.add(myTrack);
                         myTrack!!.addPoint(geoPoint);
@@ -157,7 +205,7 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
                 }
             }
         }
-    }*/
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -169,6 +217,8 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
                 gpx = createGPXFromParcelable(saveGPX)
                 Log.d("fragment", "gpx restored")
             }
+            elevationGained = savedInstanceState.getDouble("Dénivelé positif");
+            distanceTraveled = savedInstanceState.getDouble("Distance voyagée");
             /*requireActivity().bindService(Intent(activity, TrackerService::class.java), connection, Context.BIND_AUTO_CREATE);
             val saveService = savedInstanceState.getParcelable<Messenger>("Service");
             if (saveService != null){
@@ -185,6 +235,7 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        binding = MapFragmentBinding.inflate(inflater);
         //Create parent and map layout
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
@@ -200,46 +251,43 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         mtag = tag
         this.scale = requireContext().resources.displayMetrics.density
         this.pixels = (100 * this.scale + 0.5f).toInt()
-        parentLayout = ConstraintLayout(inflater.context);
-        mMapView = MapView(inflater.context);
-        mMapView.tag = "Map_View";
-        mMapView.id = R.id.Map_View;
-        //mMapView.addView(parentLayout);
+        //mMapView = binding.mainMapView;
+        //mMapView.tag = "Map_View";
+       // mMapView.id = R.id.Map_View;
+        //parentLayout = binding.parentLayout;
+       // mMapView.addView(parentLayout);
+        parentLayout = binding.root;
 
-        startButton = Button(parentLayout.context);
-        endButton = Button(parentLayout.context);
-        pauseButton = Button(parentLayout.context);
-        unpauseButton = Button(parentLayout.context);
-        addWaypointButton = Button(parentLayout.context);
+        startButton = AppCompatButton(this.requireContext());
+        startButton.width = 160;
+        endButton = AppCompatButton(this.requireContext());
+        pauseButton = AppCompatButton(this.requireContext());
+        unpauseButton = AppCompatButton(this.requireContext());
+        addWaypointButton = AppCompatButton(this.requireContext());
+        statsLayout = StatsLayout(this.requireContext());
         //startButton.
         parentLayout.addView(startButton);
         parentLayout.addView(addWaypointButton);
         parentLayout.addView(endButton);
         parentLayout.addView(pauseButton);
         parentLayout.addView(unpauseButton);
-
-        /*for (i in fileNames.indices) {
-            val activity = Button(this.context)
-            activity.setBackgroundColor(Color.rgb(244, 9, 48))
-            activity.height = pixels
-            activity.alpha = 0.1f
-            activity.setText(fileNames.get(i))
-            parentLayout.addView(activity)
-            activities.add(activity)
-        }*/
+        parentLayout.addView(statsLayout);
+        //set_stats_layout_constraints(statsLayout);
 
         //do some voodoo to make button appear on top of map
-        this.activity?.addContentView(parentLayout, ConstraintLayout.LayoutParams(
+       /*this.activity?.addContentView(parentLayout, ConstraintLayout.LayoutParams(
             ConstraintLayout.LayoutParams.MATCH_PARENT,
             ConstraintLayout.LayoutParams.MATCH_PARENT,
         ));
-        //Log.d("nav",mMapView.parent.toString())
-        return mMapView;
+        //Log.d("nav",mMapView.parent.toString())*/
+        return parentLayout;
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState);
 
+        mMapView = (this.activity as MainActivity).get_map_view();
+        parentLayout.addView(mMapView);
         mLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), mMapView)
         mLocationOverlay.enableMyLocation();
         mMapView.overlays.add(this.mLocationOverlay);
@@ -274,10 +322,13 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         Log.d("fragment","started");
         if (isService(TrackerService::class.java)) {
             startButton.visibility = GONE
-            endButton.visibility = View.VISIBLE
+            endButton.visibility = View.VISIBLE;
+            accèsVuesActivité(activity, GONE);
         } else {
             endButton.visibility = GONE
             startButton.visibility = View.VISIBLE
+            accèsVuesActivité(activity, VISIBLE);
+            //l_avancement.visibility = GONE;
         }
 
         startButton.text = "Start";
@@ -293,20 +344,21 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         filter.addAction(BROADCAST_ACTION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         requireActivity().registerReceiver(TrackReceiver, filter);
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(TrackReceiver, IntentFilter("LOCATION_UPDATE"))
 
         startButton.setOnClickListener{
             myTrack = Polyline(mMapView);
             mMapView.overlays.add(myTrack);
-            requireActivity().startForegroundService(Intent(activity, TrackerService::class.java));
-            //requireActivity().bindService(Intent(activity, TrackerService::class.java), connection, Context.BIND_AUTO_CREATE);
-            //val msg = Message.obtain(null, MessageValues.MSG_REGISTER_CLIENT.value);
-           // mMessenger.send(msg);
             isBound = true;
             tracking = true;
+            Log.d("view", "viewtest");
             startButton.visibility = GONE
             endButton.visibility = View.VISIBLE
             pauseButton.visibility = View.VISIBLE;
             addWaypointButton.visibility = View.VISIBLE;
+
+            accèsVuesActivité(activity, View.GONE);
+
             if(!gpxFile.exists()){
                 gpx = GPX("run_track", "1.1");
             }else{
@@ -321,9 +373,10 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
             val startpoint = GPXWaypoint(startlocation)
             startpoint.name = "Start"
             gpx.addWaypoint(startpoint)
-            Log.d("track:","starte");
-            //val handler = Handler():
-            
+            originalTime = Instant.now().epochSecond;
+            Log.d("track:","start");
+            ContextCompat.startForegroundService(this.requireContext(), Intent(activity, TrackerService::class.java));
+            statsLayout.visibility = VISIBLE;
         }
 
         pauseButton.setOnClickListener{
@@ -372,25 +425,28 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
                 gpxFile.deleteGPXFile()
             }
             gpx.addWaypoint(endpoint)
-            //mMessenger.send(Message.obtain(null, MessageValues.MSG_UNREGISTER_CLIENT.value));
-            //if (isBound!!){
-            //requireActivity().unbindService(connection);
             Log.d("servicer", "stopped")
-            requireActivity().stopService(Intent(activity,TrackerService::class.java));
+            requireActivity().stopService(Intent(activity, TrackerService::class.java));
             mMapView.overlays.remove(myTrack);
             startButton.visibility = View.VISIBLE;
             endButton.visibility = GONE;
             pauseButton.visibility = GONE;
             addWaypointButton.visibility = GONE;
+            statsLayout.visibility = GONE;
+            accèsVuesActivité(activity, VISIBLE);
             val nameTrackDialogue = NameTrackDialogue()
             nameTrackDialogue.show(childFragmentManager, nameTrackDialogue.tag)
+            elevationGained = 0.0;
+            previousElevation = null;
+            previousLocation = null;
+            distanceTraveled = 0.0;
         }
     }
 
     override fun onPause(){
         super.onPause();
         mMapView.onPause();
-        mLocationOverlay.disableMyLocation();
+        //mLocationOverlay.disableMyLocation();
         /*if (isService(TrackerService::class.java)){
             val msg = Message.obtain(null, MessageValues.MSG_UNREGISTER_CLIENT.value);
             mService!!.send(msg);
@@ -401,12 +457,12 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onResume() {
         super.onResume();
-        mLocationOverlay.enableMyLocation();
         startButton.setOnClickListener{
-            requireActivity().startForegroundService(Intent(activity, TrackerService::class.java));
-            //requireActivity().bindService(Intent(activity, TrackerService::class.java),connection, Context.BIND_AUTO_CREATE);
+            ContextCompat.startForegroundService(this.requireContext(), Intent(activity, TrackerService::class.java));
             startButton.visibility = GONE
             endButton.visibility = View.VISIBLE
+            Log.d("view", binding.root.visibility.toString());
+            accèsVuesActivité(activity, GONE);
             /*if(gpxFile.createNewFile()){
 
             }else{
@@ -421,6 +477,9 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
             val startpoint = GPXWaypoint(startlocation)
             startpoint.name = "Start";
             gpx.addWaypoint(startpoint)
+            myTrack = Polyline(mMapView);
+            mMapView.overlays.add(myTrack);
+            originalTime = Instant.now().epochSecond;
             Log.d("track:","starte");
         }
         Log.d("fragment","resume");
@@ -441,6 +500,8 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         if (isService(TrackerService::class.java)){
             outState.putParcelable("Service", mService);
         }
+        outState.putDouble("Dénivelé positif", elevationGained);
+        outState.putDouble("Distance voyagée", distanceTraveled);
     }
 
     override fun onStop() {
@@ -485,6 +546,9 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         bogusGPXParser.writeGPX()
     }
 
+    // Vraiment, même en regardant en arrière sur cela, je comprends ce que cette fonction fait-elle,
+    // mais je ne sais pas comment s'appeler. Si vous ne savez pas ce qu'elle fait, elle trouve tous les noms des fichiers
+    // dans "/tracks" et les ajoute à fileNames, qui est un Tableau (ArrayList).
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Throws(IOException::class)
     private fun i_really_just_do_not_know_how_to_name_this_function_and_i_am_just_too_tired_to_care_at_this_point_this_is_bogus() {
@@ -535,4 +599,70 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
             exception.printStackTrace()
         }
     }
+
+    /*private fun chronomètre(){
+        val vue_temps = avancement_aux_temps;
+        var seconds = 0;
+        val gestionnaire = Handler(Looper.getMainLooper());
+
+        gestionnaire.post(object : Runnable {
+            override fun run() {
+                val heures: Int = seconds / 3600
+                val minutes: Int = seconds % 3600 / 60
+                val secs: Int = seconds % 60
+
+                // Format the seconds into hours, minutes,
+                // and seconds.
+                val temps = java.lang.String
+                    .format(
+                        Locale.getDefault(),
+                        "%d:%02d:%02d", heures,
+                        minutes, secs
+                    )
+
+                // Set the text view text.
+                vue_temps.text = temps
+
+                // If running is true, increment the
+                // seconds variable.
+                if (fonctionnement) {
+                    seconds++
+                }
+
+                // Post the code again
+                // with a delay of 1 second.
+                gestionnaire.postDelayed(this, 1000)
+            }
+        })
+    }*/
+
+    private fun haversineDistance(coord1: GeoPoint, coord2: GeoPoint): Double {
+        val R = 6371e3 // Earth's radius in meters
+        val lat1Rad = Math.toRadians(coord1.latitude)
+        val lat2Rad = Math.toRadians(coord2.latitude)
+        val latDiff = Math.toRadians(coord2.latitude - coord1.latitude)
+        val lonDiff = Math.toRadians(coord2.longitude - coord1.longitude)
+
+        val a = sin(latDiff / 2) * sin(latDiff / 2) +
+                cos(lat1Rad) * cos(lat2Rad) *
+                sin(lonDiff / 2) * sin(lonDiff / 2)
+
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+        val altitudeDiff = coord2.altitude - coord1.altitude
+
+        return sqrt((R * R * c * c) + (altitudeDiff * altitudeDiff))
+    }
+}
+
+fun accèsVuesActivité(activity: FragmentActivity?, bottomNavigationVisibility:Int) {
+    val activityBinding = usineLiaisonActivité(activity)
+
+    // Access the activity's views as needed
+    activityBinding.bottomNavigation.visibility = bottomNavigationVisibility
+    activityBinding.lAvancement.visibility = -1 * (bottomNavigationVisibility - 8);
+}
+
+fun roundTo3DecimalPlaces(value: Double): String {
+    return String.format("%.3f", value)
 }

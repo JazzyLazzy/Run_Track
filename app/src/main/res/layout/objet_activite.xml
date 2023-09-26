@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/une_activité"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="valeur par défault du texte"
+        android:backgroundTint="#24ffc2"
+        android:textColor="@color/black">
+
+    </androidx.appcompat.widget.AppCompatButton>
+
+    <RelativeLayout
+        android:id="@+id/info_d_activité"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#7777F4"
+        android:visibility="gone"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="valeur par défaut du texte deux" />
+
+    </RelativeLayout>
+
+</androidx.appcompat.widget.LinearLayoutCompat>
