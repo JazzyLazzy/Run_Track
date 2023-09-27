@@ -15,6 +15,7 @@ import com.lazarus.run_track1.MainActivity
 import com.lazarus.run_track1.MapsFragment.BROADCAST_ACTION
 import com.lazarus.run_track1.MessageValues
 import com.lazarus.run_track1.ParcelableTrackPoint
+import java.io.File
 
 class TrackerService : Service() {
 
@@ -82,8 +83,16 @@ class TrackerService : Service() {
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(this.applicationContext)
         locationRequest = LocationRequest.create()
-        locationRequest.interval = 1000
-        locationRequest.fastestInterval = 500;
+        val rfile = File(this.application.filesDir.toString() + "track_rate.txt")
+        if (rfile.exists()){
+            locationRequest.interval = (rfile.readText().toDouble() * 1000).toLong()
+            locationRequest.fastestInterval = (rfile.readText().toDouble() * 1000).toLong()
+        }else{
+            rfile.createNewFile()
+            rfile.writeText("0.5");
+            locationRequest.interval = 500
+            locationRequest.fastestInterval = 500
+        }
         locationRequest.priority = Priority.PRIORITY_HIGH_ACCURACY;
         startLocationUpdates();
         Log.d("track:", "Started")
