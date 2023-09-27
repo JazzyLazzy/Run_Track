@@ -8,8 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.findFragment
+import com.lazarus.run_track1.MapsFragment.accèsVuesActivité
 import com.lazarus.run_track1.R
 import java.io.File
 
@@ -23,6 +25,13 @@ class LocationTrackRateFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         fileName = requireActivity().filesDir.toString() + "track_rate.txt";
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback {
+            parentFragmentManager.popBackStack();
+        }
     }
 
     override fun onCreateView(
