@@ -3,7 +3,7 @@
 Android App to track your running. It works I guess...but the UX definitely needs a massive touch-up, and there are still a lot of bugs.
 
 ##License
-<one line to give the program's name and a brief idea of what it does.>
+
     Copyright (C) 2023  Lazarus Turpaud
 
     This program is free software: you can redistribute it and/or modify
