@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
