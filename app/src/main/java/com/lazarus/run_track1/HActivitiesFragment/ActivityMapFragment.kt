@@ -21,6 +21,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.CopyrightOverlay
+import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
@@ -175,6 +176,13 @@ class ActivityMapFragment : Fragment() {
         //Log.d("distance", distance.toString());
         //myTrack.addPoint(GeoPoint(125.2,-42.43, 8.21))
         //myTrack.addPoint(GeoPoint(15.2,2.43, 188.21))
+
+        for (i in parcelableGPX.waypoints){
+            val nwaypoint = Marker(mMapView);
+            nwaypoint.position = GeoPoint(i.latitude, i.longitude, i.elevation);
+            nwaypoint.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+            mMapView.overlays.add(nwaypoint);
+        }
 
         val mapController = mMapView.controller;
         mLocationOverlay.runOnFirstFix {

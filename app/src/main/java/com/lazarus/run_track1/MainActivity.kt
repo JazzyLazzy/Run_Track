@@ -7,6 +7,9 @@ import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View.GONE
+import android.view.View.VISIBLE
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -104,14 +107,17 @@ class MainActivity : AppCompatActivity() {
 
             when (item.itemId) {
                 R.id.nav_home -> {
+                    findViewById<Button>(R.id.start).visibility = VISIBLE;
                     selectedFragment = MapFragment()
                     changeFragment(selectedFragment, "Fragment")
                 }
                 R.id.nav_activities -> {
+                    findViewById<Button>(R.id.start).visibility = GONE;
                     selectedFragment = HActivityFragment()
                     changeFragment(selectedFragment, "Activities")
                 }
                 R.id.nav_settings -> {
+                    findViewById<Button>(R.id.start).visibility = GONE;
                     selectedFragment = SettingsFragment()
                     changeFragment(selectedFragment, "Settings")
                 }
