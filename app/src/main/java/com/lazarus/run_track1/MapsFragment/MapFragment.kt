@@ -39,6 +39,7 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.CopyrightOverlay
+import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
@@ -258,19 +259,8 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
        // mMapView.addView(parentLayout);
         parentLayout = binding.root;
 
-        startButton = AppCompatButton(this.requireContext());
-        startButton.width = 160;
-        endButton = AppCompatButton(this.requireContext());
-        pauseButton = AppCompatButton(this.requireContext());
-        unpauseButton = AppCompatButton(this.requireContext());
-        addWaypointButton = AppCompatButton(this.requireContext());
         statsLayout = StatsLayout(this.requireContext());
         //startButton.
-        parentLayout.addView(startButton);
-        parentLayout.addView(addWaypointButton);
-        parentLayout.addView(endButton);
-        parentLayout.addView(pauseButton);
-        parentLayout.addView(unpauseButton);
         parentLayout.addView(statsLayout);
         //set_stats_layout_constraints(statsLayout);
 
@@ -319,26 +309,25 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
     override fun onStart(){
         super.onStart();
 
+        startButton = this.requireActivity().findViewById(R.id.start);
+        addWaypointButton = this.requireActivity().findViewById(R.id.waypoint);
+        endButton = this.requireActivity().findViewById(R.id.stop);
+
+
         Log.d("fragment","started");
         if (isService(TrackerService::class.java)) {
             startButton.visibility = GONE
             endButton.visibility = View.VISIBLE;
+            addWaypointButton.visibility = VISIBLE;
             accèsVuesActivité(activity, GONE);
         } else {
             endButton.visibility = GONE
             startButton.visibility = View.VISIBLE
+            addWaypointButton.visibility = GONE;
             accèsVuesActivité(activity, VISIBLE);
             //l_avancement.visibility = GONE;
         }
 
-        startButton.text = "Start";
-        endButton.text = "End";
-        pauseButton.text = "Pause";
-        unpauseButton.text = "Unpause";
-        addWaypointButton.text = "Add Waypoint";
-        pauseButton.visibility = GONE;
-        unpauseButton.visibility = GONE;
-        addWaypointButton.visibility = GONE;
 
         val filter = IntentFilter();
         filter.addAction(BROADCAST_ACTION);
@@ -379,7 +368,7 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
             statsLayout.visibility = VISIBLE;
         }
 
-        pauseButton.setOnClickListener{
+        /*pauseButton.setOnClickListener{
             tracking = false;
             pauseButton.visibility = GONE;
             unpauseButton.visibility = View.VISIBLE;
@@ -397,7 +386,7 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
             pauseButton.visibility = View.VISIBLE;
             addWaypointButton.visibility = VISIBLE;
             tracking = true;
-        }
+        }*/
 
         addWaypointButton.setOnClickListener{
             gpx.addWaypoint(GPXWaypoint(
@@ -406,6 +395,10 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
                     mLocationOverlay.myLocation.altitude,
                     LocalDateTime.now())
             ));
+            val newWaypoint = Marker(mMapView);
+            newWaypoint.position = mLocationOverlay.myLocation;
+            newWaypoint.setAnchor(Marker.ANCHOR_BOTTOM, Marker.ANCHOR_CENTER);
+            mMapView.overlays.add(newWaypoint);
         }
 
         endButton.setOnClickListener{
@@ -425,12 +418,16 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
                 gpxFile.deleteGPXFile()
             }
             gpx.addWaypoint(endpoint)
+            for (i in mMapView.overlays){
+                if (i is Marker){
+                    mMapView.overlays.remove(i);
+                }
+            }
             Log.d("servicer", "stopped")
             requireActivity().stopService(Intent(activity, TrackerService::class.java));
             mMapView.overlays.remove(myTrack);
             startButton.visibility = View.VISIBLE;
             endButton.visibility = GONE;
-            pauseButton.visibility = GONE;
             addWaypointButton.visibility = GONE;
             statsLayout.visibility = GONE;
             accèsVuesActivité(activity, VISIBLE);
@@ -461,6 +458,7 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
             ContextCompat.startForegroundService(this.requireContext(), Intent(activity, TrackerService::class.java));
             startButton.visibility = GONE
             endButton.visibility = View.VISIBLE
+            addWaypointButton.visibility = View.VISIBLE;
             Log.d("view", binding.root.visibility.toString());
             accèsVuesActivité(activity, GONE);
             /*if(gpxFile.createNewFile()){
