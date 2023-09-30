@@ -39,6 +39,10 @@ class TrackerService : Service() {
         }
     }
 
+    inner class TrackerBinder: Binder() {
+        fun getService():TrackerService = this@TrackerService;
+    }
+
     inner class IncomingHandler(
         context: Context,
         private val applicationContext: Context = context.applicationContext
@@ -117,7 +121,7 @@ class TrackerService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? {
-        return mMessenger!!.binder;
+        return TrackerBinder();
     }
 
     override fun onDestroy() {
@@ -126,10 +130,7 @@ class TrackerService : Service() {
         val intent = Intent()
         intent.action = BROADCAST_ACTION;
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        val tracks = ArrayList<trk>()
-        tracks.add(createNewTrack(locationHeap))
-        Log.d("bundle", tracks.get(0).name!!)
-        val gpx = GPX("run_track","1.1", tracks)
+        val gpx = heapToGPX();
         val random = (0..100000).random()
         val fileName = this.application.filesDir.toString() + "/tracks/" + random.toString() + ".gpx"
         val simpleGPXWriter = SimpleGPXWriter("file://$fileName");
@@ -139,6 +140,16 @@ class TrackerService : Service() {
         Log.d("broadcast", "sendheap")
         sendBroadcast(intent)
         stopForeground(true)
+    }
+
+    fun sendLocationData():GPX{
+        return heapToGPX();
+    }
+
+    private fun heapToGPX(): GPX {
+        val tracks = ArrayList<trk>()
+        tracks.add(createNewTrack(locationHeap))
+        return GPX("run_track", "1.1", tracks);
     }
 
     @SuppressLint("MissingPermission")

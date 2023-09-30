@@ -116,10 +116,21 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:text="0min"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/wavancement_aux_temps"
             app:layout_constraintEnd_toEndOf="@id/ligne_de_guide_droite"
             app:layout_constraintStart_toStartOf="@+id/ligne_de_guide_gauche"
             app:layout_constraintTop_toTopOf="parent"
+            android:textColor="@android:color/black"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:text="0min"
+            android:id="@+id/wavancement_aux_temps"
+            app:layout_constraintTop_toBottomOf="@id/avancement_aux_temps"
+            app:layout_constraintEnd_toEndOf="@id/ligne_de_guide_droite"
+            app:layout_constraintStart_toStartOf="@+id/ligne_de_guide_gauche"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:textColor="@android:color/black"/>
 
         <TextView

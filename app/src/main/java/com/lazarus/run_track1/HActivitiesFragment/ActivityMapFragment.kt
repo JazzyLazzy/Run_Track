@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.activity.addCallback
@@ -100,6 +101,7 @@ class ActivityMapFragment : Fragment() {
 
         val liaisonActivité = usineLiaisonActivité(activity);
         liaisonActivité.bottomNavigation.visibility = GONE;
+        liaisonActivité.lAvancement.visibility = VISIBLE;
 
         val plaqueBas = exempleNouveau();
         plaqueBas.show(parentFragmentManager, plaqueBas.tag)
@@ -131,20 +133,7 @@ class ActivityMapFragment : Fragment() {
         Log.d("time_parse", LocalDateTime.now().toString())
         val parcelableGPX = bogusGPXParser.parseGPX();
         Log.d("time_beginloop", LocalDateTime.now().toString())
-        for (i in parcelableGPX.tracks.indices){
-            Log.d("p-point","hellow")
-            for (j in parcelableGPX.tracks[i].trksegs.indices){
-                Log.d("p-point","hellowo")
-                for (k in parcelableGPX.tracks[i].trksegs[j].trkpts.indices){
-                    val latitude = parcelableGPX.tracks[i].trksegs[j].trkpts[k].latitude;
-                    val longitude = parcelableGPX.tracks[i].trksegs[j].trkpts[k].longitude;
-                    val altitude = parcelableGPX.tracks[i].trksegs[j].trkpts[k].elevation;
-                    //Log.d("p-point", latitude.toString());
-                    val geoPoint = GeoPoint(latitude, longitude, altitude);
-                    myTrack.addPoint(geoPoint);
-                }
-            }
-        }
+        loadTrack(parcelableGPX, myTrack);
         var distance = 0.0;
         var tE = 0.0;
         var eG = 0.0;
@@ -229,5 +218,22 @@ class ActivityMapFragment : Fragment() {
 
     private fun showFile(file: File): String {
         return file.name
+    }
+}
+
+fun loadTrack(parcelableGPX: GPX, myTrack:Polyline){
+    for (i in parcelableGPX.tracks.indices){
+        Log.d("p-point","hellow")
+        for (j in parcelableGPX.tracks[i].trksegs.indices){
+            Log.d("p-point","hellowo")
+            for (k in parcelableGPX.tracks[i].trksegs[j].trkpts.indices){
+                val latitude = parcelableGPX.tracks[i].trksegs[j].trkpts[k].latitude;
+                val longitude = parcelableGPX.tracks[i].trksegs[j].trkpts[k].longitude;
+                val altitude = parcelableGPX.tracks[i].trksegs[j].trkpts[k].elevation;
+                //Log.d("p-point", latitude.toString());
+                val geoPoint = GeoPoint(latitude, longitude, altitude);
+                myTrack.addPoint(geoPoint);
+            }
+        }
     }
 }
