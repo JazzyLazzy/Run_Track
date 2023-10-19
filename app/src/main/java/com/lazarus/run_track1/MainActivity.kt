@@ -151,20 +151,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestPermissions() {
-        requestPermissions(
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.INTERNET,
-                Manifest.permission.ACCESS_NETWORK_STATE,
-                Manifest.permission.FOREGROUND_SERVICE
-            ),
-            69420
-        );
+        val permissions = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_WIFI_STATE,
+            Manifest.permission.INTERNET,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.FOREGROUND_SERVICE)
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            permissions.plus(Manifest.permission.POST_NOTIFICATIONS);
+        }
+        requestPermissions(permissions, 69420);
     }
 
     private fun werePermissionsGranted(): Boolean? {
@@ -189,7 +189,10 @@ class MainActivity : AppCompatActivity() {
             this, Manifest.permission.READ_EXTERNAL_STORAGE
         ) ==
                 PackageManager.PERMISSION_GRANTED)
-        return GPSPermissionGranted && ReadWriteFiles
+        val Notifications:Boolean = if (android.os.Build.VERSION.SDK_INT >= 33) (ContextCompat.checkSelfPermission(
+            this, Manifest.permission.POST_NOTIFICATIONS
+        )) ==   PackageManager.PERMISSION_GRANTED else true
+        return GPSPermissionGranted && ReadWriteFiles && Notifications
     }
 }
 
