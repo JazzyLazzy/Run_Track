@@ -19,10 +19,8 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.preference.PreferenceManager
 import com.google.android.material.navigation.NavigationBarView
-import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.lazarus.run_track1.HActivitiesFragment.HActivityFragment
 import com.lazarus.run_track1.MapsFragment.MapFragment
-import com.lazarus.run_track1.NativeJNI.MonJNI
 import com.lazarus.run_track1.SettingsFragment.SettingsFragment
 import com.lazarus.run_track1.databinding.ActivityMainBinding
 import org.osmdroid.config.Configuration
@@ -46,8 +44,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val jni = MonJNI().helloWorld();
-        println(jni);
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 

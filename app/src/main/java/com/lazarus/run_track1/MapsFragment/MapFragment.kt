@@ -35,8 +35,6 @@ import com.lazarus.run_track1.Service.NameTrackDialogue
 import com.lazarus.run_track1.Service.NameTrackDialogueService
 import com.lazarus.run_track1.Service.TrackerService
 import com.lazarus.run_track1.databinding.MapFragmentBinding
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.view.*
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView

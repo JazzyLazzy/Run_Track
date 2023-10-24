@@ -4,10 +4,10 @@ plugins {
     id 'com.google.gms.google-services'
 }
 
-apply plugin: 'kotlin-android-extensions'
-
 android {
     compileSdk 34
+
+    namespace "com.lazarus.run_track1"
 
     defaultConfig {
         applicationId "com.lazarus.run_track1"

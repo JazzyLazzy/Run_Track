@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lazarus.run_track1.R
 import com.lazarus.run_track1.databinding.HActivityFragmentBinding
 import com.lazarus.run_track1.HActivitiesFragment.AdaptateurListeActivités
-import kotlinx.android.synthetic.main.h_activity_fragment.h_activity_scroll;
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -184,24 +183,6 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
 
     private fun showFile(file: File): String {
         return file.name
-    }
-
-    private fun deleteTrack(button: Button) {
-        button.setOnClickListener {
-            // Create a double-tap detector
-            val doubleTapDetector = GestureDetector(context, object: GestureDetector.SimpleOnGestureListener() {
-                override fun onDoubleTap(e: MotionEvent?): Boolean {
-                    // Remove the button from its parent view
-                    (button.parent as ViewGroup).removeView(button)
-                    return true
-                }
-            })
-
-            // Attach the double-tap detector to the button
-            button.setOnTouchListener { _, motionEvent ->
-                doubleTapDetector.onTouchEvent(motionEvent)
-            }
-        }
     }
 
     /*private fun createButton(i:Int, constraintSet: ConstraintSet):ConstraintSet{

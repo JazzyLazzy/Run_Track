@@ -4,10 +4,20 @@
 #ifndef Track_H
 #define Track_H
 
-typedef struct{
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct Track Track;
+
+struct Track{
   char *name;
   Track_Seg *track_segs;
-  struct Track *next;
-} Track;
+  Track *next;
+};
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

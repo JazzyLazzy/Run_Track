@@ -2,12 +2,22 @@
 #ifndef Location_H
 #define Location_H
 
-typedef struct {
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct Location Location;
+
+struct Location {
   double latitude;
   double longitude;
   int elevation;
   unsigned long long time;
-  struct Location *next;
-} Location;
+  Location *next;
+};
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

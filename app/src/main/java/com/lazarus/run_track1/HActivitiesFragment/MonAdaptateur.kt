@@ -13,7 +13,6 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.lazarus.run_track1.R
-import kotlinx.android.synthetic.main.activity_main.view.*
 
 class AdaptateurListeActivités (private val context: Context, private val ensembleDonnées: ArrayList<String>,
             private val enCliqué: (String) -> Unit) :

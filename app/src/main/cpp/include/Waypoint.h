@@ -4,14 +4,24 @@
 #ifndef Waypoint_H
 #define Waypoint_H
 
-typedef struct {
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct Waypoint Waypoint;
+
+struct Waypoint {
   Location *location;
   char *name;
   char *desc;
   char *sym;
   //int d;
-  struct Waypoint *next;
-} Waypoint;
+  Waypoint *next;
+};
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // !Waypoint_H
 
