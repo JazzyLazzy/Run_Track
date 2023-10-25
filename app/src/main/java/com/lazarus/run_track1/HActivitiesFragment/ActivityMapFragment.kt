@@ -15,10 +15,13 @@ import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 import com.lazarus.run_track1.MapsFragment.accèsVuesActivité
 import com.lazarus.run_track1.R
+import com.lazarus.run_track1.SimpleJPX.SimpleJPX
 import com.lazarus.run_track1.usineLiaisonActivité
-import kotlinx.android.synthetic.main.activity_main.*
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.CopyrightOverlay
@@ -129,10 +132,19 @@ class ActivityMapFragment : Fragment() {
         Log.d("p-point", stringify);
 
         mMapView.overlays.add(myTrack);
+        //val simpleJPX = SimpleJPX();
+        //Log.d("p-point", "jpxloaded")
+        //val cpxGeoPoint = simpleJPX.parseGPX("file://$fileName");
+        //for (geoPoint:GeoPoint in cpxGeoPoint!!.geoPointList){
+        //    myTrack.addPoint(geoPoint);
+        //}
+        //simpleJPX.wtb("file://$fileName");
         val bogusGPXParser = SimpleGPXParser("file://$fileName");
-        Log.d("time_parse", LocalDateTime.now().toString())
+        val timeparse = LocalDateTime.now();
+        Log.d("time_parse", timeparse.toString())
         val parcelableGPX = bogusGPXParser.parseGPX();
-        Log.d("time_beginloop", LocalDateTime.now().toString())
+        val timeloop = LocalDateTime.now()
+        Log.d("time_beginloop", timeloop.toString())
         loadTrack(parcelableGPX, myTrack);
         var distance = 0.0;
         var tE = 0.0;
@@ -159,7 +171,8 @@ class ActivityMapFragment : Fragment() {
         pace.minutes /= parcelableGPX.tracks[0].trksegs.size;
         pace.seconds /= parcelableGPX.tracks[0].trksegs.size;
         afficherLesStatistiques(distance.toString(), tE.toString(), pace.toString());
-        Log.d("time_endloop", LocalDateTime.now().toString());
+        val timeendloop = LocalDateTime.now();
+        Log.d("time_endloop", timeendloop.toString());
         Log.d("distance",distance.toString());
         Log.d("elevation",tE.toString())
         //Log.d("distance", distance.toString());

@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.18.1)
 
 # Declares and names the project.
 
-project("SimpleCPXParser")
+project("SimpleCPXWrapper")
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
@@ -16,25 +16,36 @@ project("SimpleCPXParser")
 # Gradle automatically packages shared libraries with your APK.
 
 add_library( # Sets the name of the library.
-             SimpleCPX
+             SimpleCPXWrapper
 
              # Sets the library as a shared library.
              SHARED
 
              # Provides a relative path to your source file(s).
-             SimpleCPXParser.c)
+        SimpleCPXWrapper.cpp)
 
-include_directories(src/main/cpp/include)
+target_include_directories(SimpleCPXWrapper PRIVATE src/main/cpp/include)
 
 add_library(expat
+        SHARED
+        IMPORTED)
+
+set_target_properties(
+        expat
+        PROPERTIES IMPORTED_LOCATION
+        /home/lazarus/AndroidStudioProjects/run_track1/app/src/main/jniLibs/arm64-v8a/libexpat.so.1)
+
+add_library(SimpleCPXParser
         SHARED
         IMPORTED
         GLOBAL)
 
 set_target_properties(
-        expat
+        SimpleCPXParser
         PROPERTIES IMPORTED_LOCATION
-        /home/lazarus/AndroidStudioProjects/run_track1/app/src/main/jniLibs/arm64-v8a/libexpat.so)
+        ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/arm64-v8a/libSimpleCPXParser.so)
+
+
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -54,18 +65,7 @@ find_library( # Sets the name of the path variable.
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
 
-target_link_libraries(
-        # Specifies the target library.
-        SimpleCPX
-
-        expat
-
-       # Links the target library to the log library
-       # included in the NDK.
-       ${log-lib} )
-
-target_link_libraries(SimpleCPX
-        /home/lazarus/AndroidStudioProjects/run_track1/app/src/main/jniLibs/${CMAKE_ANDROID_ARCH_ABI}/libexpat.so)
-
-target_link_libraries(SimpleCPX
-                    expat)
+target_link_libraries(SimpleCPXWrapper
+                    SimpleCPXParser
+                    android
+                    ${log-lib})

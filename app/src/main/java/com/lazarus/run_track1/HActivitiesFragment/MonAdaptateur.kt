@@ -12,11 +12,14 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
+import com.google.firebase.storage.storage
 import com.lazarus.run_track1.R
-import kotlinx.android.synthetic.main.activity_main.view.*
 
 class AdaptateurListeActivités (private val context: Context, private val ensembleDonnées: ArrayList<String>,
-            private val enCliqué: (String) -> Unit) :
+            private val enCliqué: (String) -> Unit, private val mettreAuCloud: (String) -> Unit) :
         RecyclerView.Adapter<AdaptateurListeActivités.PorteVueActivité>() {
 
     private lateinit var activityMapFragment:ActivityMapFragment;
@@ -25,18 +28,21 @@ class AdaptateurListeActivités (private val context: Context, private val ensem
         fun enInfoActivitéClicqué(nomFichier: String)
     }
 
-    inner class PorteVueActivité(itemView: View, val enCliqué: (String) -> Unit,
+    inner class PorteVueActivité(itemView: View, val enCliqué: (String) -> Unit, val mettreAuCloud: (String) -> Unit,
              private val écouteur:EnInfoActivitéClicquéÉcouteur = HActivityFragment()) : RecyclerView.ViewHolder(itemView) {
         private val lActivité: AppCompatButton = itemView.findViewById(R.id.une_activité);
         private val infoActivité:RelativeLayout = itemView.findViewById(R.id.info_d_activité)
+        private val uploadCloud:RelativeLayout = itemView.findViewById(R.id.upload_cloud);
         private var nomActivité:String? = null
         init {
             lActivité.setOnClickListener {
                 println("clicked!");
                 if (infoActivité.visibility == View.GONE){
                     infoActivité.visibility = View.VISIBLE;
+                    uploadCloud.visibility = View.VISIBLE
                 }else{
                     infoActivité.visibility = View.GONE;
+                    uploadCloud.visibility = View.GONE;
                 }
             }
             infoActivité.setOnClickListener{
@@ -44,6 +50,12 @@ class AdaptateurListeActivités (private val context: Context, private val ensem
                     enCliqué(it)
                 }
             }
+            uploadCloud.setOnClickListener {
+                nomActivité?.let {
+                    mettreAuCloud(it);
+                }
+            }
+
         }
 
         fun attache(nomFichier:String){
@@ -62,7 +74,7 @@ class AdaptateurListeActivités (private val context: Context, private val ensem
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PorteVueActivité {
         val vue = LayoutInflater.from(context)
             .inflate(R.layout.objet_activite, parent, false);
-        return PorteVueActivité(vue, enCliqué);
+        return PorteVueActivité(vue, enCliqué, mettreAuCloud);
     }
 
     override fun onBindViewHolder(holder: PorteVueActivité, position: Int) {
