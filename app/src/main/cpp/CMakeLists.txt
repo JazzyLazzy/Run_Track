@@ -26,19 +26,19 @@ add_library( # Sets the name of the library.
 
 target_include_directories(SimpleCPXWrapper PRIVATE src/main/cpp/include)
 
-#add_library(expat
-#        SHARED
-#        IMPORTED
-#        GLOBAL)
+add_library(expat
+        SHARED
+        IMPORTED)
 
-#set_target_properties(
-#        expat
-#        PROPERTIES IMPORTED_LOCATION
-#        /home/lazarus/AndroidStudioProjects/run_track1/app/src/main/jniLibs/arm64-v8a/libexpat.so.1)
+set_target_properties(
+        expat
+        PROPERTIES IMPORTED_LOCATION
+        /home/lazarus/AndroidStudioProjects/run_track1/app/src/main/jniLibs/arm64-v8a/libexpat.so.1)
 
 add_library(SimpleCPXParser
         SHARED
-        IMPORTED)
+        IMPORTED
+        GLOBAL)
 
 set_target_properties(
         SimpleCPXParser
@@ -66,6 +66,6 @@ find_library( # Sets the name of the path variable.
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries(SimpleCPXWrapper
-#                    expat
                     SimpleCPXParser
+                    android
                     ${log-lib})

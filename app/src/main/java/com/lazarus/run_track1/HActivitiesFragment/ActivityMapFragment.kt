@@ -15,6 +15,9 @@ import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 import com.lazarus.run_track1.MapsFragment.accèsVuesActivité
 import com.lazarus.run_track1.R
 import com.lazarus.run_track1.SimpleJPX.SimpleJPX
@@ -129,14 +132,14 @@ class ActivityMapFragment : Fragment() {
         Log.d("p-point", stringify);
 
         mMapView.overlays.add(myTrack);
-        val simpleJPX = SimpleJPX();
-        Log.d("p-point", "jpxloaded")
+        //val simpleJPX = SimpleJPX();
+        //Log.d("p-point", "jpxloaded")
         //val cpxGeoPoint = simpleJPX.parseGPX("file://$fileName");
         //for (geoPoint:GeoPoint in cpxGeoPoint!!.geoPointList){
         //    myTrack.addPoint(geoPoint);
         //}
-        simpleJPX.wtb("file://$fileName");
-        /*val bogusGPXParser = SimpleGPXParser("file://$fileName");
+        //simpleJPX.wtb("file://$fileName");
+        val bogusGPXParser = SimpleGPXParser("file://$fileName");
         val timeparse = LocalDateTime.now();
         Log.d("time_parse", timeparse.toString())
         val parcelableGPX = bogusGPXParser.parseGPX();
@@ -192,7 +195,7 @@ class ActivityMapFragment : Fragment() {
                 mapController.setCenter(GeoPoint(latitude, longitude));
                 mapController.animateTo(GeoPoint(latitude, longitude));
             }
-        }*/
+        }
         Log.d("nav",mMapView.parent.toString())
     }
 

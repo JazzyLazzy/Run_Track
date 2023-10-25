@@ -1,6 +1,7 @@
 package com.lazarus.run_track1
 
 import android.Manifest
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
@@ -19,6 +20,12 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.preference.PreferenceManager
 import com.google.android.material.navigation.NavigationBarView
+import com.google.firebase.FirebaseApp
+import com.google.firebase.firestore.firestore
+import com.google.firebase.initialize
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import com.google.firebase.storage.storage
 import com.lazarus.run_track1.HActivitiesFragment.HActivityFragment
 import com.lazarus.run_track1.MapsFragment.MapFragment
 import com.lazarus.run_track1.SettingsFragment.SettingsFragment

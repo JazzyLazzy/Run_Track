@@ -3,6 +3,7 @@ package com.lazarus.run_track1.HActivitiesFragment
 import SimpleGPX.SimpleGPXParser
 import android.content.Context
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -18,6 +19,8 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import com.lazarus.run_track1.R
 import com.lazarus.run_track1.databinding.HActivityFragmentBinding
 import com.lazarus.run_track1.HActivitiesFragment.AdaptateurListeActivités
@@ -48,6 +51,7 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
     private lateinit var binding:HActivityFragmentBinding;
     private lateinit var vueRecyclage: RecyclerView;
     private lateinit var constraintSet: ConstraintSet;
+    private val storage = Firebase.storage;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,7 +84,7 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
         }
 
         //this.activity?.setContentView(binding.root);
-        val adaptateurActivités = AdaptateurListeActivités(this.requireContext(), fileNames!!, ::enCliquéAdaptateur);
+        val adaptateurActivités = AdaptateurListeActivités(this.requireContext(), fileNames!!, ::enCliquéAdaptateur, ::mettreAuCloud);
         vueRecyclage.layoutManager = LinearLayoutManager(this.activity);
         vueRecyclage.adapter = adaptateurActivités;
         return binding.root;
@@ -261,6 +265,22 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
             .replace(R.id.fragment_container, activityMapFragment, newTag)
             .addToBackStack(null)
             .commit()
+    }
+
+    private fun mettreAuCloud(nomFichier: String){
+        val fileName = this.context?.filesDir.toString() + "/tracks/$nomFichier"
+        var file = Uri.fromFile(File(fileName));
+        var storageRef = storage.reference;
+        val fileRef = storageRef.child("images/${file.lastPathSegment}");
+        var uploadTask = fileRef.putFile(file);
+        // Register observers to listen for when the download is done or if it fails
+        uploadTask.addOnFailureListener {
+            // Handle unsuccessful uploads
+            Log.d("upload__", "failed");
+        }.addOnSuccessListener { taskSnapshot -> Log.d("upload__", taskSnapshot.metadata.toString())
+            // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
+            // ...
+        }
     }
 
 }

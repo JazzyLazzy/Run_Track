@@ -6,7 +6,7 @@ class SimpleJPX {
 
     companion object {
         init {
-            //System.loadLibrary("expat");
+           // System.loadLibrary("SimpleCPXParser");
             System.loadLibrary("SimpleCPXWrapper")
         }
     }
