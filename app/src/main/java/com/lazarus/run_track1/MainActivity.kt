@@ -34,7 +34,6 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.views.MapView
 import java.io.File
 
-
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
@@ -59,7 +58,7 @@ class MainActivity : AppCompatActivity() {
             requestPermissions()
         }
         val connectivityManager =
-            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork = connectivityManager.activeNetwork;
 
         Log.d("fragment","activity created")
@@ -78,6 +77,8 @@ class MainActivity : AppCompatActivity() {
         } else {
             println("Pathname already exists")
         }
+
+        initialiseEncryption(this.applicationContext);
 
         val bottomNavigationView = binding.bottomNavigation;
         bottomNavigationView.setOnItemSelectedListener(navListener);

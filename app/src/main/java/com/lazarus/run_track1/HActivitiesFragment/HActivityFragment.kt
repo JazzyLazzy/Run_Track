@@ -24,6 +24,8 @@ import com.google.firebase.storage.ktx.storage
 import com.lazarus.run_track1.R
 import com.lazarus.run_track1.databinding.HActivityFragmentBinding
 import com.lazarus.run_track1.HActivitiesFragment.AdaptateurListeActivités
+import com.lazarus.run_track1.encryptFile
+import com.lazarus.run_track1.getPublicKey
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -269,12 +271,22 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
 
     private fun mettreAuCloud(nomFichier: String){
         val fileName = this.context?.filesDir.toString() + "/tracks/$nomFichier"
-        var file = Uri.fromFile(File(fileName));
+        val encryptedBytes = encryptFile(File(fileName), getPublicKey(this.requireContext()))
+        //var file = Uri.fromFile(File(fileName));
         var storageRef = storage.reference;
-        val fileRef = storageRef.child("images/${file.lastPathSegment}");
-        var uploadTask = fileRef.putFile(file);
+        val fileRef = storageRef.child("gpxs/$nomFichier");
+        val aesRef = storageRef.child("gpxs/aes$nomFichier");
+        var uploadTask = fileRef.putBytes(encryptedBytes[0]);
         // Register observers to listen for when the download is done or if it fails
         uploadTask.addOnFailureListener {
+            // Handle unsuccessful uploads
+            Log.d("upload__", "failed");
+        }.addOnSuccessListener { taskSnapshot -> Log.d("upload__", taskSnapshot.metadata.toString())
+            // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
+            // ...
+        }
+        var uploadKeyTask = aesRef.putBytes(encryptedBytes[1]);
+        uploadKeyTask.addOnFailureListener {
             // Handle unsuccessful uploads
             Log.d("upload__", "failed");
         }.addOnSuccessListener { taskSnapshot -> Log.d("upload__", taskSnapshot.metadata.toString())
