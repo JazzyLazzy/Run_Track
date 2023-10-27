@@ -17,7 +17,7 @@ import javax.crypto.KeyGenerator
 import javax.crypto.spec.SecretKeySpec
 
 fun generateAESKey(): ByteArray {
-    val keyGen = KeyGenerator.getInstance("AES", "BC")
+    val keyGen = KeyGenerator.getInstance("AES")
     keyGen.init(256) // You can choose the key size you need (e.g., 128, 256)
     val secretKey = keyGen.generateKey()
     return secretKey.encoded

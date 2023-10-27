@@ -228,8 +228,10 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
 
     private fun imprimer(nomFichier: String){
         fileNames!!.remove(nomFichier);
-        val file = File(this.context?.filesDir.toString() + "/tracks$nomFichier");
-        file.delete();
+        val file = File(this.context?.filesDir.toString() + "/tracks/$nomFichier");
+        Log.d("fiiiles", file.absolutePath);
+        if(file.delete()) Log.d ("fiiiles", "deleted")
+        else Log.d("fiiiles", "failure");
     }
 
     private fun listCloud(){
