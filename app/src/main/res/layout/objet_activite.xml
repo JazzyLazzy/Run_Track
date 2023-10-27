@@ -10,42 +10,76 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="valeur par défault du texte"
-        android:backgroundTint="#24ffc2"
-        android:textColor="@color/black">
+        android:background="@drawable/activite_background"
+        android:textColor="@color/black"/>
 
-    </androidx.appcompat.widget.AppCompatButton>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:visibility="gone"
+        android:id="@+id/info_d_activité">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="7dp"
+            android:id="@+id/track_settings_icon"
+            android:src="@drawable/ic_track_settings"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/track_settings_dropdown"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/track_settings_icon"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete Track"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        <RelativeLayout
-            android:id="@+id/info_d_activité"
-            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="#7777F4"
-            android:visibility="gone"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <RelativeLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="valeur par défaut du texte deux" />
+                android:layout_weight="1"
+                android:background="#7777F4"
+                android:gravity="center">
 
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:visibility="gone"
-            android:id="@+id/upload_cloud">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="valeur par défaut du texte deux" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="mettre au cloud"/>
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:visibility="gone"
+                android:id="@+id/upload_cloud">
 
-        </RelativeLayout>
-    </androidx.appcompat.widget.LinearLayoutCompat>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="mettre au cloud"/>
+
+            </RelativeLayout>
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.appcompat.widget.LinearLayoutCompat>

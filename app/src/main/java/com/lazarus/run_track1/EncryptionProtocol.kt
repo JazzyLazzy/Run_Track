@@ -66,7 +66,7 @@ fun getPublicKey(context: Context?):PublicKey{
 }
 
 fun getPrivateKey(context: Context?):PrivateKey{
-    val privateFilePath = context?.filesDir.toString() + "/keys/rsa_public_key.x509";
+    val privateFilePath = context?.filesDir.toString() + "/keys/rsa_private_key.pkcs8";
     val privateKeyBytes: ByteArray = File(privateFilePath).readBytes()
     val keyFactory = KeyFactory.getInstance("RSA")
     val privateKeySpec = PKCS8EncodedKeySpec(privateKeyBytes)

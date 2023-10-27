@@ -1,25 +1,20 @@
 package com.lazarus.run_track1.HActivitiesFragment
 
-import android.app.Activity
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.LinearLayoutCompat
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.ktx.storage
-import com.google.firebase.storage.storage
 import com.lazarus.run_track1.R
 
+
 class AdaptateurListeActivités (private val context: Context, private val ensembleDonnées: ArrayList<String>,
-            private val enCliqué: (String) -> Unit, private val mettreAuCloud: (String) -> Unit) :
+            private val enCliqué: (String) -> Unit, private val mettreAuCloud: (String) -> Unit, private val imprimer: (String) -> Unit) :
         RecyclerView.Adapter<AdaptateurListeActivités.PorteVueActivité>() {
 
     private lateinit var activityMapFragment:ActivityMapFragment;
@@ -28,11 +23,13 @@ class AdaptateurListeActivités (private val context: Context, private val ensem
         fun enInfoActivitéClicqué(nomFichier: String)
     }
 
-    inner class PorteVueActivité(itemView: View, val enCliqué: (String) -> Unit, val mettreAuCloud: (String) -> Unit,
+    inner class PorteVueActivité(itemView: View, val enCliqué: (String) -> Unit, val mettreAuCloud: (String) -> Unit, val imprimer: (String) ->Unit,
              private val écouteur:EnInfoActivitéClicquéÉcouteur = HActivityFragment()) : RecyclerView.ViewHolder(itemView) {
         private val lActivité: AppCompatButton = itemView.findViewById(R.id.une_activité);
-        private val infoActivité:RelativeLayout = itemView.findViewById(R.id.info_d_activité)
+        private val infoActivité:ConstraintLayout= itemView.findViewById(R.id.info_d_activité)
         private val uploadCloud:RelativeLayout = itemView.findViewById(R.id.upload_cloud);
+        private val trackSettingsIcon: ImageView = itemView.findViewById(R.id.track_settings_icon)
+        private val trackSettingsDropdown: ConstraintLayout = itemView.findViewById(R.id.track_settings_dropdown)
         private var nomActivité:String? = null
         init {
             lActivité.setOnClickListener {
@@ -43,6 +40,19 @@ class AdaptateurListeActivités (private val context: Context, private val ensem
                 }else{
                     infoActivité.visibility = View.GONE;
                     uploadCloud.visibility = View.GONE;
+                }
+            }
+            trackSettingsIcon.setOnClickListener{
+                if (trackSettingsDropdown.visibility == View.GONE) {
+                    trackSettingsDropdown.visibility = View.VISIBLE
+                } else {
+                    trackSettingsDropdown.visibility = View.GONE
+                }
+            }
+            trackSettingsDropdown.setOnClickListener {
+                nomActivité?.let{
+                    this@AdaptateurListeActivités.notifyItemRemoved(this.adapterPosition);
+                    imprimer(it)
                 }
             }
             infoActivité.setOnClickListener{
@@ -74,7 +84,7 @@ class AdaptateurListeActivités (private val context: Context, private val ensem
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PorteVueActivité {
         val vue = LayoutInflater.from(context)
             .inflate(R.layout.objet_activite, parent, false);
-        return PorteVueActivité(vue, enCliqué, mettreAuCloud);
+        return PorteVueActivité(vue, enCliqué, mettreAuCloud, imprimer);
     }
 
     override fun onBindViewHolder(holder: PorteVueActivité, position: Int) {
@@ -91,5 +101,6 @@ class AdaptateurListeActivités (private val context: Context, private val ensem
         étatsOuvert[position] = !étatsOuvert[position]
         notifyItemChanged(position)
     }*/
+
 
 }
