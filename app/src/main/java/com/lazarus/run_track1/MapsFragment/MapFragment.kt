@@ -625,42 +625,6 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         }
     }
 
-    /*private fun chronomètre(){
-        val vue_temps = avancement_aux_temps;
-        var seconds = 0;
-        val gestionnaire = Handler(Looper.getMainLooper());
-
-        gestionnaire.post(object : Runnable {
-            override fun run() {
-                val heures: Int = seconds / 3600
-                val minutes: Int = seconds % 3600 / 60
-                val secs: Int = seconds % 60
-
-                // Format the seconds into hours, minutes,
-                // and seconds.
-                val temps = java.lang.String
-                    .format(
-                        Locale.getDefault(),
-                        "%d:%02d:%02d", heures,
-                        minutes, secs
-                    )
-
-                // Set the text view text.
-                vue_temps.text = temps
-
-                // If running is true, increment the
-                // seconds variable.
-                if (fonctionnement) {
-                    seconds++
-                }
-
-                // Post the code again
-                // with a delay of 1 second.
-                gestionnaire.postDelayed(this, 1000)
-            }
-        })
-    }*/
-
     private fun haversineDistance(coord1: GeoPoint, coord2: GeoPoint): Double {
         val R = 6371e3 // Earth's radius in meters
         val lat1Rad = Math.toRadians(coord1.latitude)

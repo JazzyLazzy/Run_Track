@@ -78,6 +78,9 @@ class MainActivity : AppCompatActivity() {
             println("Pathname already exists")
         }
 
+        //Initialise Bouncy Castle
+        initialiseProvider();
+        //Generate Keys
         initialiseEncryption(this.applicationContext);
 
         val bottomNavigationView = binding.bottomNavigation;

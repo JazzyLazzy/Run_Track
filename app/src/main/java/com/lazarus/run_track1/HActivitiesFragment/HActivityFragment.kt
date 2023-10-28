@@ -20,6 +20,8 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ListResult
+import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import com.lazarus.run_track1.R
 import com.lazarus.run_track1.databinding.HActivityFragmentBinding
@@ -53,6 +55,8 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
     private lateinit var binding:HActivityFragmentBinding;
     private lateinit var vueRecyclage: RecyclerView;
     private lateinit var constraintSet: ConstraintSet;
+    private lateinit var syncCloud: Button;
+    private lateinit var adaptateurActivités: AdaptateurListeActivités
     private val storage = Firebase.storage;
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,7 +90,7 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
         }
 
         //this.activity?.setContentView(binding.root);
-        val adaptateurActivités = AdaptateurListeActivités(this.requireContext(), fileNames!!, ::enCliquéAdaptateur, ::mettreAuCloud);
+        adaptateurActivités = AdaptateurListeActivités(this.requireContext(), fileNames!!, ::enCliquéAdaptateur, ::mettreAuCloud, ::imprimer);
         vueRecyclage.layoutManager = LinearLayoutManager(this.activity);
         vueRecyclage.adapter = adaptateurActivités;
         return binding.root;
@@ -95,57 +99,18 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        syncCloud = this.requireActivity().findViewById(R.id.sync_cloud);
+        syncCloud.setOnClickListener{
+            val fileSet = fileNames!!.toHashSet();
+            listCloud()
+        }
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
         println("started h view");
-        /*for (i in activities.indices) {
-            activities[i].setOnClickListener { view: View? ->
-                val summary = LinearLayoutCompat(this.requireContext());
-                summary.setBackgroundColor(Color.rgb(0,0,125));
-                summary.layoutParams =
-                    LinearLayoutCompat.LayoutParams(LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.WRAP_CONTENT);
-                summary.orientation = LinearLayoutCompat.VERTICAL;
-                val speed_txt = TextView(this.requireContext());
-                speed_txt.setText("Speed");
-                summary.id = View.generateViewId();
-                summary.addView(speed_txt);
-                summary.setBackgroundColor(Color.rgb(245, 200, 48))
-                containers[i].addView(summary);
-                val containerSet = ConstraintSet();
-                containerSet.clone(containers[i]);
-                Log.d("constraint_layout_click", "before connect");
-                containerSet.connect(summary.id, ConstraintSet.TOP, containers[i].id, ConstraintSet.BOTTOM);
-                Log.d("constraint_layout_click", "before connect 1");
-                containerSet.connect(summary.id, ConstraintSet.BOTTOM, containers[i + 1].id, ConstraintSet.TOP);
-                containerSet.applyTo(constraintLayout);
-                //constraintSet.clone(constraintLayout);
-                //constraintSet.applyTo(constraintLayout);
-                //Log.d("time_click", LocalDateTime.now().toString())
-                Log.d("constraint_layout_click", summary.id.toString());
-                Log.d("constraint_layout_click", activities[i].id.toString());
-                Log.d("constraint_layout_click", activities[i+1].id.toString());
-                /*activityMapFragment = ActivityMapFragment();
-                val trackName = activities[i].text;
-                val fileName =
-                    this.context?.filesDir.toString() + "/tracks/$trackName";
-                val fileNameBundle = Bundle();
-                fileNameBundle.putString("gpx_file",fileName);
-                Log.d("time_putstring" , LocalDateTime.now().toString())
-                val bogusGPXParser = SimpleGPXParser("file://$fileName")
-                val newTag = "track"
-                viewActivityFragment!!.arguments = fileNameBundle;
-                //if (gpx != null) {
-                    this.requireActivity().supportFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, activityMapFragment!!, newTag)
-                        .commit()
-                //}*/
-                //test_RemoveButton(activities[i])
-            }
-        }*/
     }
 
     override fun onStop() {
@@ -170,10 +135,9 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
     private fun findFiles() {
         fileNames = ArrayList()
         val dir = Paths.get(this.context?.filesDir.toString() + "/tracks")
-        Files.walk(dir).forEach { path: Path ->
+        Files.list(dir).skip(0).forEach { path: Path ->
             fileNames!!.add(
                 showFile(path.toFile())
-
             )
             Log.d("fiiiles", path.toFile().toString());
         }
@@ -181,48 +145,15 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
 
     private fun showFiles(files: Array<File>) {
         fileNames = ArrayList()
-        for (i in files.indices) {
+        for (i in 1 until files.size) {
             fileNames!!.add(files[0].name)
-            Log.d("fiiiles", files[0].name);
+            Log.d("fiiiles", fileNames!![0]);
         }
     }
 
     private fun showFile(file: File): String {
         return file.name
     }
-
-    /*private fun createButton(i:Int, constraintSet: ConstraintSet):ConstraintSet{
-        val container = ConstraintLayout(this.requireContext());
-        container.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        container.id = View.generateViewId();
-        val activity = OpenAppCompatButton(this.requireContext());
-        activity.setBackgroundColor(Color.rgb(24, 200, 48))
-        activity.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        activity.height = pixels;
-        activity.alpha = 1.0f;
-        activity.text = fileNames!![i];
-        activity.setTextColor(Color.rgb(255, 0, 54));
-        activity.gravity = Gravity.CENTER_VERTICAL;
-        activity.id = View.generateViewId();
-        //activity.width = ViewGroup.LayoutParams.WRAP_CONTENT;
-        val settings = AppCompatButton(this.requireContext());
-        val svg = resources.getDrawable(R.drawable.ic_drawing, null);
-        settings.background = svg;
-        container.addView(activity);
-
-        //container.addView(settings);
-        //container.minWidth = ViewGroup.LayoutParams.MATCH_PARENT;
-        binding.hActivityScroll.addView(container);
-        //binding.hActivityScroll.addView(activity);
-        activities.add(activity);
-        containers.add(container);
-        if (i > 0){
-            constraintSet.clone(constraintLayout)
-            constraintSet.connect(container.id, ConstraintSet.TOP, containers[i - 1].id, ConstraintSet.BOTTOM, 0)
-            constraintSet.applyTo(constraintLayout);
-        }
-        return constraintSet;
-    }*/
 
     /*private fun createSettingsButton(){
         val settingsButton = AppCompatButton(this.requireContext());
@@ -292,6 +223,29 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
         }.addOnSuccessListener { taskSnapshot -> Log.d("upload__", taskSnapshot.metadata.toString())
             // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
             // ...
+        }
+    }
+
+    private fun imprimer(nomFichier: String){
+        fileNames!!.remove(nomFichier);
+        val file = File(this.context?.filesDir.toString() + "/tracks/$nomFichier");
+        Log.d("fiiiles", file.absolutePath);
+        if(file.delete()) Log.d ("fiiiles", "deleted")
+        else Log.d("fiiiles", "failure");
+    }
+
+    private fun listCloud(){
+        val listRef = storage.reference.child("/gpxs");
+        listRef.listAll().addOnSuccessListener { listResult ->
+            for (prefix in listResult.prefixes) {
+                Log.d("preff", prefix.toString())
+            }
+
+            for (item in listResult.items) {
+                // All the items under listRef.
+                Log.d("fiiiles", item.toString());
+            }
+
         }
     }
 

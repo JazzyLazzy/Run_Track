@@ -1,6 +1,7 @@
 package com.lazarus.run_track1
 
 import android.content.Context
+import android.util.Log
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.io.File
 import java.security.KeyFactory
@@ -23,8 +24,6 @@ fun generateAESKey(): ByteArray {
 }
 
 fun generateKeyPair():KeyPair {
-    // Initialize the Bouncy Castle provider (you should do this only once)
-    Security.addProvider(BouncyCastleProvider())
 
     // Create a KeyPairGenerator instance for RSA
     val keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC")
@@ -67,7 +66,7 @@ fun getPublicKey(context: Context?):PublicKey{
 }
 
 fun getPrivateKey(context: Context?):PrivateKey{
-    val privateFilePath = context?.filesDir.toString() + "/keys/rsa_public_key.x509";
+    val privateFilePath = context?.filesDir.toString() + "/keys/rsa_private_key.pkcs8";
     val privateKeyBytes: ByteArray = File(privateFilePath).readBytes()
     val keyFactory = KeyFactory.getInstance("RSA")
     val privateKeySpec = PKCS8EncodedKeySpec(privateKeyBytes)
@@ -82,6 +81,7 @@ fun initialiseEncryption(context:Context?){
     val keyPath =  context?.filesDir.toString() + "/keys";
     val keyDir = File(keyPath);
     if (keyDir.exists()) return;
+    Log.d("ekeys", "generating");
     keyDir.mkdir();
     privatefile.createNewFile()
 
@@ -95,7 +95,7 @@ fun initialiseEncryption(context:Context?){
 
     val privatekeyBytes = privateKey.encoded
     val pkcs8KeySpec = PKCS8EncodedKeySpec(privatekeyBytes)
-    val privatekeyFactory = java.security.KeyFactory.getInstance("RSA")
+    val privatekeyFactory = KeyFactory.getInstance("RSA")
 
     val privateKeyInfo = privatekeyFactory.generatePrivate(pkcs8KeySpec)
     privatefile.writeBytes(privateKeyInfo.encoded)
@@ -103,8 +103,12 @@ fun initialiseEncryption(context:Context?){
     val publickeyBytes = publicKey.encoded
     val X509keySpec = X509EncodedKeySpec(publickeyBytes)
 
-    val publickeyFactory = java.security.KeyFactory.getInstance("RSA")
+    val publickeyFactory = KeyFactory.getInstance("RSA")
     val reconstitutedKey = publickeyFactory.generatePublic(X509keySpec)
     publicFile.writeBytes(reconstitutedKey.encoded)
 
+}
+
+fun initialiseProvider(){
+    Security.addProvider(BouncyCastleProvider())
 }

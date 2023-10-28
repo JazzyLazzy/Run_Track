@@ -1,5 +1,5 @@
 Credits:
-This Software may contain or be derived from some or all of OSMDroid.
+This Software may contain or be derived from some or all of OSMDroid, provided under the following licence:
 Source can be found here: https://github.com/osmdroid/osmdroid/tree/master.
 Copyright (c) OSMDroid, licensed under Apache License v2.0.
 Apache License
@@ -203,3 +203,55 @@ Apache License
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+
+This Software may contain or be derived from some or all of BouncyCastle API, provided under the following licence:
+Copyright (c) 2000-2023 The Legion of the Bouncy Castle Inc. (https://www.bouncycastle.org)
+<p>
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+and associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+<p>
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+<p>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+
+This Software may contain or be derived from some or all of Expat C XML Parser, provided under the following licence:
+ Copyright (c) 1997-2000 Thai Open Source Software Center Ltd
+   Copyright (c) 2000      Clark Cooper <coopercc@users.sourceforge.net>
+   Copyright (c) 2000-2005 Fred L. Drake, Jr. <fdrake@users.sourceforge.net>
+   Copyright (c) 2001-2002 Greg Stein <gstein@users.sourceforge.net>
+   Copyright (c) 2002-2016 Karl Waclawek <karl@waclawek.net>
+   Copyright (c) 2016-2022 Sebastian Pipping <sebastian@pipping.org>
+   Copyright (c) 2016      Cristian Rodríguez <crrodriguez@opensuse.org>
+   Copyright (c) 2016      Thomas Beutlich <tc@tbeu.de>
+   Copyright (c) 2017      Rhodri James <rhodri@wildebeest.org.uk>
+   Copyright (c) 2022      Thijs Schreijer <thijs@thijsschreijer.nl>
+   Licensed under the MIT license:
+
+   Permission is  hereby granted,  free of charge,  to any  person obtaining
+   a  copy  of  this  software   and  associated  documentation  files  (the
+   "Software"),  to  deal in  the  Software  without restriction,  including
+   without  limitation the  rights  to use,  copy,  modify, merge,  publish,
+   distribute, sublicense, and/or sell copies of the Software, and to permit
+   persons  to whom  the Software  is  furnished to  do so,  subject to  the
+   following conditions:
+
+   The above copyright  notice and this permission notice  shall be included
+   in all copies or substantial portions of the Software.
+
+   THE  SOFTWARE  IS  PROVIDED  "AS  IS",  WITHOUT  WARRANTY  OF  ANY  KIND,
+   EXPRESS  OR IMPLIED,  INCLUDING  BUT  NOT LIMITED  TO  THE WARRANTIES  OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+   NO EVENT SHALL THE AUTHORS OR  COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+   DAMAGES OR  OTHER LIABILITY, WHETHER  IN AN  ACTION OF CONTRACT,  TORT OR
+   OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+   USE OR OTHER DEALINGS IN THE SOFTWARE.
