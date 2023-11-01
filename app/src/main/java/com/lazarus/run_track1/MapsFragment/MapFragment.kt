@@ -312,11 +312,9 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState);
 
+        Log.d("fragment", "view created")
         mMapView = (this.activity as MainActivity).get_map_view();
         parentLayout.addView(mMapView);
-        mLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), mMapView)
-        mLocationOverlay.enableMyLocation();
-        mMapView.overlays.add(this.mLocationOverlay);
 
         bogusCopyrightOverlay = CopyrightOverlay(context);
         mMapView.overlays.add(this.bogusCopyrightOverlay);
@@ -329,15 +327,6 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         mMapView.isTilesScaledToDpi = true;
 
         mMapView.setTileSource(TileSourceFactory.USGS_TOPO)
-
-        val mapController = mMapView.controller;
-        mLocationOverlay.runOnFirstFix {
-            this.activity?.runOnUiThread {
-                mapController.setZoom(15.0);
-                mapController.setCenter(mLocationOverlay.myLocation);
-                mapController.animateTo(mLocationOverlay.myLocation);
-            }
-        }
 
         if (myTrack != null){
             mMapView.overlays.add(myTrack);
@@ -362,6 +351,17 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         addWaypointButton = this.requireActivity().findViewById(R.id.waypoint);
         endButton = this.requireActivity().findViewById(R.id.stop);
 
+        mLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), mMapView)
+        mLocationOverlay.enableMyLocation();
+        mMapView.overlays.add(this.mLocationOverlay);
+        val mapController = mMapView.controller;
+        mLocationOverlay.runOnFirstFix {
+            this.activity?.runOnUiThread {
+                mapController.setZoom(15.0);
+                mapController.setCenter(mLocationOverlay.myLocation);
+                mapController.animateTo(mLocationOverlay.myLocation);
+            }
+        }
 
         Log.d("fragment","started");
         if (isService(TrackerService::class.java)) {
@@ -412,6 +412,8 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
                     mLocationOverlay.myLocation.altitude,
                     LocalDateTime.now())
             ));
+            Log.d("gpx", gpx.waypoints.get(gpx.waypoints.size - 1).latitude.toString());
+            Log.d("gpx", gpx.waypoints.get(gpx.waypoints.size - 1).longitude.toString());
             val newWaypoint = Marker(mMapView);
             newWaypoint.position = mLocationOverlay.myLocation;
             newWaypoint.setAnchor(Marker.ANCHOR_BOTTOM, Marker.ANCHOR_CENTER);
@@ -477,6 +479,7 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         startButton.setOnClickListener{
             startButtonClicked()
         }
+        mMapView.overlays.add(this.mLocationOverlay);
         Log.d("fragment","resume");
     }
 

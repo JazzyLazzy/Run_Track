@@ -29,7 +29,9 @@ import com.google.firebase.storage.storage
 import com.lazarus.run_track1.HActivitiesFragment.HActivityFragment
 import com.lazarus.run_track1.MapsFragment.MapFragment
 import com.lazarus.run_track1.SettingsFragment.SettingsFragment
+import com.lazarus.run_track1.SimpleJPX.SimpleJPX
 import com.lazarus.run_track1.databinding.ActivityMainBinding
+import com.lazarus.simplecpxwrapper.NativeLib
 import org.osmdroid.config.Configuration
 import org.osmdroid.views.MapView
 import java.io.File
@@ -50,6 +52,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //val native = NativeLib();
+        //native.wtb(applicationContext.filesDir.toString() + "/tracks/waypoints.gpx")
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 

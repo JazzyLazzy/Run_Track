@@ -9,13 +9,6 @@ android {
 
     namespace "com.lazarus.run_track1"
 
-    sourceSets {
-        main {
-            jniLibs.srcDirs = ['src/main/jniLibs']
-        }
-    }
-
-
     defaultConfig {
         applicationId "com.lazarus.run_track1"
         minSdk 24
@@ -26,7 +19,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags '-std=c++11'
+                cppFlags ''
             }
         }
 
@@ -74,6 +67,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.10.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation project(':SimpleCPXWrapper')
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'

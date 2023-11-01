@@ -28,6 +28,7 @@ class AdaptateurListeActivités (private val context: Context, private val ensem
         private val lActivité: AppCompatButton = itemView.findViewById(R.id.une_activité);
         private val infoActivité:ConstraintLayout= itemView.findViewById(R.id.info_d_activité)
         private val uploadCloud:RelativeLayout = itemView.findViewById(R.id.upload_cloud);
+        private val voirActivité:RelativeLayout = itemView.findViewById(R.id.voir_activité);
         private val trackSettingsIcon: ImageView = itemView.findViewById(R.id.track_settings_icon)
         private val trackSettingsDropdown: ConstraintLayout = itemView.findViewById(R.id.track_settings_dropdown)
         private var nomActivité:String? = null
@@ -37,9 +38,11 @@ class AdaptateurListeActivités (private val context: Context, private val ensem
                 if (infoActivité.visibility == View.GONE){
                     infoActivité.visibility = View.VISIBLE;
                     uploadCloud.visibility = View.VISIBLE
+                    voirActivité.visibility = View.VISIBLE
                 }else{
                     infoActivité.visibility = View.GONE;
                     uploadCloud.visibility = View.GONE;
+                    voirActivité.visibility = View.GONE;
                 }
             }
             trackSettingsIcon.setOnClickListener{
@@ -55,7 +58,7 @@ class AdaptateurListeActivités (private val context: Context, private val ensem
                     imprimer(it)
                 }
             }
-            infoActivité.setOnClickListener{
+            voirActivité.setOnClickListener{
                 nomActivité?.let{
                     enCliqué(it)
                 }
