@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.18.1)
 
 # Declares and names the project.
 
-project("SimpleCPXWrapper")
+project("simplecpxwrapper")
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
@@ -16,24 +16,24 @@ project("SimpleCPXWrapper")
 # Gradle automatically packages shared libraries with your APK.
 
 add_library( # Sets the name of the library.
-             SimpleCPXWrapper
+        simplecpxwrapper
 
-             # Sets the library as a shared library.
-             SHARED
-
-             # Provides a relative path to your source file(s).
-        SimpleCPXWrapper.cpp)
-
-#target_include_directories(SimpleCPXWrapper PRIVATE src/main/cpp/include)
-
-add_library(expat
+        # Sets the library as a shared library.
         SHARED
-        IMPORTED)
 
-set_target_properties(
-        expat
-        PROPERTIES IMPORTED_LOCATION
-        /home/lazarus/AndroidStudioProjects/run_track1/app/src/main/jniLibs/arm64-v8a/libexpat.so.1)
+        t.c
+        # Provides a relative path to your source file(s).
+        simplecpxwrapper.cpp)
+
+#target_include_directories(simplecpxwrapper PRIVATE src/main/cpp/include)
+
+
+#find_library(expat STATIC)
+
+#set_target_properties(
+#        expat
+#        PROPERTIES IMPORTED_LOCATION
+#        /home/lazarus/AndroidStudioProjects/run_track1/app/src/main/jniLibs/arm64-v8a/libexpat.a)
 
 #add_library(SimpleCPXParser SHARED IMPORTED GLOBAL)
 
@@ -41,9 +41,10 @@ set_target_properties(
 
 add_library(t SHARED IMPORTED)
 
-set_target_properties( t PROPERTIES IMPORTED_LOCATION /home/lazarus/AndroidStudioProjects/run_track1/app/src/main/jniLibs/arm64-v8a/libt.so)
+set_target_properties( t PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/arm64-v8a/libt.so)
 
-
+#include(${NDK_PATH}/platforms/android-${CMAKE_ANDROID_ABI}/usr/include/expat.h)
+#link (${PROJECT_NAME} ${NDK_PATH}/platforms/android-${CMAKE_ANDROID_ABI}/lib/libext.a)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -53,18 +54,20 @@ set_target_properties( t PROPERTIES IMPORTED_LOCATION /home/lazarus/AndroidStudi
 
 
 find_library( # Sets the name of the path variable.
-              log-lib
+        log-lib
 
-              # Specifies the name of the NDK library that
-              # you want CMake to locate.
-              log )
+        # Specifies the name of the NDK library that
+        # you want CMake to locate.
+        log )
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
 
-target_link_libraries(SimpleCPXWrapper
-                   #SimpleCPXParser
-                    t
-                    android
-                    ${log-lib})
+target_link_libraries(simplecpxwrapper
+        #SimpleCPXParser
+        #t
+        android
+#        ${CMAKE_SOURCE_DIR}/../jniLibs/arm64-v8a/libexpat.a
+ #       ${CMAKE_SOURCE_DIR}/../jniLibs/arm64-v8a/libSimpleCPXParser.a
+        ${log-lib})

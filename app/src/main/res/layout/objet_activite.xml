@@ -57,7 +57,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="#7777F4"
-                android:gravity="center">
+                android:gravity="center"
+                android:id="@+id/voir_activité">
 
                 <TextView
                     android:layout_width="wrap_content"

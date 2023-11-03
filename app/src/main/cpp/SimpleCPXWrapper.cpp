@@ -3,9 +3,10 @@
 //
 
 #include "SimpleCPXWrapper.h"
-#include "include/SimpleCPXParser.h"
-#include "include/Track.h"
+//#include "include/SimpleCPXParser.h"
+//#include "include/Track.h"
 #include <jni.h>
+#include "include/t.h"
 #include <android/log.h>
 
 /*extern "C"
@@ -39,11 +40,3 @@ Java_com_lazarus_run_1track1_SimpleJPX_SimpleJPX_parseGPX(JNIEnv *env, jclass cl
     return javaObject;
 }*/
 
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_lazarus_run_1track1_SimpleJPX_SimpleJPX_wtb(JNIEnv *env, jobject thiz, jstring s) {
-    // TODO: implement wtb()
-    char *cfile = (char*) env->GetStringUTFChars(s, 0);
-    GPX *gpx = parse_GPX(cfile);
-    return;
-}
