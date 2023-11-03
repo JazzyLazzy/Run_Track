@@ -378,7 +378,11 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         val filter = IntentFilter();
         filter.addAction(BROADCAST_ACTION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
-        requireActivity().registerReceiver(TrackReceiver, filter);
+        if (Build.VERSION.SDK_INT > 32) {
+            requireActivity().registerReceiver(TrackReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        }else{
+            requireActivity().registerReceiver(TrackReceiver, filter);
+        }
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(TrackReceiver, IntentFilter("LOCATION_UPDATE"))
 
         startButton.setOnClickListener{
