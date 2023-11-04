@@ -1,1 +1,29 @@
-
+{
+  "project_info": {
+    "project_number": "647390015064",
+    "project_id": "ala-d9999",
+    "storage_bucket": "ala-d9999.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:647390015064:android:0dcc7181f0d631c932242d",
+        "android_client_info": {
+          "package_name": "com.lazarus.run_track1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFHEr3cH4X8b9vj0rAtLOwwI95rH7JKKg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

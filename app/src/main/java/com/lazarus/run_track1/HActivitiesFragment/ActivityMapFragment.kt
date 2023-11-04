@@ -20,8 +20,8 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 import com.lazarus.run_track1.MapsFragment.accèsVuesActivité
 import com.lazarus.run_track1.R
-import com.lazarus.run_track1.SimpleJPX.SimpleJPX
 import com.lazarus.run_track1.usineLiaisonActivité
+import com.lazarus.simplecpxwrapper.NativeLib
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.CopyrightOverlay
@@ -132,14 +132,14 @@ class ActivityMapFragment : Fragment() {
         Log.d("p-point", stringify);
 
         mMapView.overlays.add(myTrack);
-        //val simpleJPX = SimpleJPX();
+        val simpleCPXWrapper = NativeLib();
         //Log.d("p-point", "jpxloaded")
-        //val cpxGeoPoint = simpleJPX.parseGPX("file://$fileName");
-        //for (geoPoint:GeoPoint in cpxGeoPoint!!.geoPointList){
-        //    myTrack.addPoint(geoPoint);
-        //}
+        val cpxGeoPoint = simpleCPXWrapper.parseGPX("$fileName");
+        for (geoPoint:GeoPoint in cpxGeoPoint!!.geoPointList){
+            myTrack.addPoint(geoPoint);
+        }
         //simpleJPX.wtb("file://$fileName");
-        val bogusGPXParser = SimpleGPXParser("file://$fileName");
+        /*val bogusGPXParser = SimpleGPXParser("file://$fileName");
         val timeparse = LocalDateTime.now();
         Log.d("time_parse", timeparse.toString())
         val parcelableGPX = bogusGPXParser.parseGPX();
@@ -197,6 +197,8 @@ class ActivityMapFragment : Fragment() {
             }
         }
         Log.d("nav",mMapView.parent.toString())
+
+         */
     }
 
     private fun afficherLesStatistiques(distance:String, élévation:String, temps:String){
