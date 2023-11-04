@@ -21,19 +21,20 @@ add_library( # Sets the name of the library.
         # Sets the library as a shared library.
         SHARED
 
-        t.c
+
+        include/SimpleCPXParser.c
         # Provides a relative path to your source file(s).
         simplecpxwrapper.cpp)
 
 #target_include_directories(simplecpxwrapper PRIVATE src/main/cpp/include)
 
 
-#find_library(expat STATIC)
+add_library(expat SHARED IMPORTED)
 
-#set_target_properties(
-#        expat
-#        PROPERTIES IMPORTED_LOCATION
-#        /home/lazarus/AndroidStudioProjects/run_track1/app/src/main/jniLibs/arm64-v8a/libexpat.a)
+set_target_properties(
+        expat
+        PROPERTIES IMPORTED_LOCATION
+        ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/arm64-v8a/libexpat.so)
 
 #add_library(SimpleCPXParser SHARED IMPORTED GLOBAL)
 
@@ -68,6 +69,7 @@ target_link_libraries(simplecpxwrapper
         #SimpleCPXParser
         #t
         android
+        expat
 #        ${CMAKE_SOURCE_DIR}/../jniLibs/arm64-v8a/libexpat.a
  #       ${CMAKE_SOURCE_DIR}/../jniLibs/arm64-v8a/libSimpleCPXParser.a
         ${log-lib})
