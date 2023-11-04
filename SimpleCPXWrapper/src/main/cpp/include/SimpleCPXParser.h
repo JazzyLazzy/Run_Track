@@ -15,6 +15,8 @@ extern "C" {
  */
 GPX *parse_GPX(char *file);
 
+void free_gpx(GPX *gpx);
+
 #ifdef __cplusplus
 }
 #endif

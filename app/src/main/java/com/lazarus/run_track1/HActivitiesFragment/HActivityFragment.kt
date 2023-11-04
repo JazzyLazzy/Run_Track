@@ -224,6 +224,14 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
             // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
             // ...
         }
+        var upload_NoEncrypt = fileRef.putFile(Uri.fromFile(File(fileName)));
+        upload_NoEncrypt.addOnFailureListener {
+            // Handle unsuccessful uploads
+            Log.d("upload__", "failed");
+        }.addOnSuccessListener { taskSnapshot -> Log.d("upload__", taskSnapshot.metadata.toString())
+            // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
+            // ...
+        }
     }
 
     private fun imprimer(nomFichier: String){

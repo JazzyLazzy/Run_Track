@@ -1,8 +1,8 @@
-package com.lazarus.run_track1
+package com.lazarus.simplecpxwrapper
 
 import org.osmdroid.util.GeoPoint
 import java.util.LinkedList
 
-class CPXGeoPoint() {
+class CPXGeoPoint {
     val geoPointList = LinkedList<GeoPoint>();
 }
