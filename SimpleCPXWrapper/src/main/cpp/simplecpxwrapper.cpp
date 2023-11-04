@@ -17,6 +17,6 @@ extern "C" JNIEXPORT void JNICALL
 jobject thiz, jstring s){
     char *cfile = (char*) env->GetStringUTFChars(s, 0);
 
-    //GPX *gpx = parse_GPX(cfile);
+    GPX *gpx = parse_GPX(cfile);
     return;
 }

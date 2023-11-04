@@ -13,6 +13,7 @@ class NativeLib {
         // Used to load the 'simplecpxwrapper' library on application startup.
         init {
             //System.loadLibrary("t")
+            System.loadLibrary("expat")
             System.loadLibrary("simplecpxwrapper")
         }
     }

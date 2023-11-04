@@ -53,8 +53,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //val native = NativeLib();
-        //native.wtb(applicationContext.filesDir.toString() + "/tracks/waypoints.gpx")
+        val native = NativeLib();
+        native.wtb(applicationContext.filesDir.toString() + "/tracks/waypoints.gpx")
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 
