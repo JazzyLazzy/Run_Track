@@ -64,6 +64,7 @@ void handle_waypoint(void *userData, const char *args[]){
     gpx->size++;
   }
   Location *location = malloc(sizeof (Location));
+  location->next = NULL;
   wpt->location = location;
   set_location(location, args);
 }
@@ -155,8 +156,7 @@ void read_text(void *userData, const XML_Char *s, int len){
     strncpy(name, s, len);
     gpx->tracks->name = name;
   }else if(is_ele && is_trkpt){
-    char *pEnd;
-    long ele = strtol(s, &pEnd, 10);
+    double ele = atof(s);
     gpx->tracks->track_segs->locations->elevation = ele;
   }
 }
@@ -242,13 +242,13 @@ GPX *parse_GPX(char *file){
 
 void free_gpx(GPX *gpx){
   printf("free bird");
-  /*Waypoint *wpt = gpx->waypoints;
+  Waypoint *wpt = gpx->waypoints;
   while (wpt != NULL){
       //Waypoint *wpt_to_free = wpt;
       wpt = wpt->next;
       //free(wpt_to_free->location);
       //free(wpt_to_free);
-  }*/
+  }
   Track *trk = gpx->tracks;
   while (trk){
     Track_Seg *track_seg = trk->track_segs;

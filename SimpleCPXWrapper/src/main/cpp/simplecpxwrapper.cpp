@@ -42,15 +42,15 @@ Java_com_lazarus_simplecpxwrapper_NativeLib_parseGPX(JNIEnv *env, jobject thiz, 
     }
 
     Location *loc = gpx->tracks->track_segs->locations;
-    jclass jGeoPointClazz = env->FindClass("org/osmdroid/util/GeoPoint");
-    jmethodID jGPConstructor = env->GetMethodID(jGeoPointClazz, "<init>", "(DD)V");
+    jclass jGeoPointClazz = env->FindClass("com/lazarus/simplecpxwrapper/GPXParserLocation");
+    jmethodID jGPConstructor = env->GetMethodID(jGeoPointClazz, "<init>", "(DDD)V");
     while (loc->next){
-        jobject jGeoPoint = env->NewObject(jGeoPointClazz, jGPConstructor, loc->latitude, loc->longitude);
+        jobject jGeoPoint = env->NewObject(jGeoPointClazz, jGPConstructor, loc->latitude, loc->longitude, loc->elevation);
         env->CallBooleanMethod(jLList, env->GetMethodID(env->FindClass("java/util/LinkedList"), "add", "(Ljava/lang/Object;)Z"), jGeoPoint);
         loc = loc->next;
     }
 
-    jfieldID fieldId = env->GetFieldID(myCStructClass, "geoPointList", "Ljava/util/LinkedList;");
+    jfieldID fieldId = env->GetFieldID(myCStructClass, "locationList", "Ljava/util/LinkedList;");
     jobject javaObject = env->NewObject(myCStructClass, constructor);
     env->SetObjectField(javaObject, fieldId, jLList);
     free_gpx(gpx);

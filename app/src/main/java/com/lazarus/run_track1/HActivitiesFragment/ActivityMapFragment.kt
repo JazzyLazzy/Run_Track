@@ -1,8 +1,11 @@
 package com.lazarus.run_track1.HActivitiesFragment
 
 import SimpleGPX.*
+import android.graphics.Color
+import android.graphics.ColorSpace.Rgb
 import android.os.Build
 import android.os.Bundle
+import android.util.ArrayMap
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +16,7 @@ import android.widget.LinearLayout
 import androidx.activity.addCallback
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.graphics.red
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.ktx.Firebase
@@ -21,6 +25,8 @@ import com.google.firebase.storage.ktx.storage
 import com.lazarus.run_track1.MapsFragment.accèsVuesActivité
 import com.lazarus.run_track1.R
 import com.lazarus.run_track1.usineLiaisonActivité
+import com.lazarus.simplecpxwrapper.CPXGeoPoint
+import com.lazarus.simplecpxwrapper.GPXParserLocation
 import com.lazarus.simplecpxwrapper.NativeLib
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
@@ -37,6 +43,9 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.math.floor
+import kotlin.system.measureTimeMillis
 
 
 class ActivityMapFragment : Fragment() {
@@ -132,12 +141,56 @@ class ActivityMapFragment : Fragment() {
         Log.d("p-point", stringify);
 
         mMapView.overlays.add(myTrack);
+        var cpxGeoPoint:CPXGeoPoint;
+        Log.d("benchmark", System.currentTimeMillis().toString())
+        var executionTime = measureTimeMillis {
         val simpleCPXWrapper = NativeLib();
         //Log.d("p-point", "jpxloaded")
-        val cpxGeoPoint = simpleCPXWrapper.parseGPX("$fileName");
-        for (geoPoint:GeoPoint in cpxGeoPoint!!.geoPointList){
-            myTrack.addPoint(geoPoint);
+            cpxGeoPoint = simpleCPXWrapper.parseGPX("$fileName");
+            Log.d("benchmark", "hangup")
         }
+        Log.d("benchmark", System.currentTimeMillis().toString())
+        Log.d("benchmark", executionTime.toString());
+        //val cpxGeoPoint = simpleCPXWrapper.parseGPX("$fileName");
+        executionTime = measureTimeMillis {
+            var i:Int = 3
+            var gainList = ArrayList<Pair<Double, Polyline>>(cpxGeoPoint.locationList.size * 2)
+            /*for (i in 3 until cpxGeoPoint.locationList.size step 3){
+                val gain = cpxGeoPoint.locationList[i].elevation - cpxGeoPoint.locationList[i - 3].elevation;
+                gainList[i/3] = gain;
+            }*/
+            while (i < cpxGeoPoint.locationList.size) {
+                val segment = Polyline(mMapView);
+                mMapView.overlays.add(segment);
+                val gain = cpxGeoPoint.locationList[i].elevation - cpxGeoPoint.locationList[i - 3].elevation;
+                segment.addPoint(GeoPoint(cpxGeoPoint.locationList[i].latitude, cpxGeoPoint.locationList[i].longitude));
+                segment.addPoint(GeoPoint(cpxGeoPoint.locationList[i - 1].latitude, cpxGeoPoint.locationList[i - 1].longitude));
+                //segment.addPoint(GeoPoint(cpxGeoPoint.locationList[i - 2].latitude, cpxGeoPoint.locationList[i - 1].longitude));
+                //segment.addPoint(GeoPoint(cpxGeoPoint.locationList[i - 3].latitude, cpxGeoPoint.locationList[i - 1].longitude));
+                gainList.add(Pair(gain, segment))
+                i += 1
+                //myTrack.addPoint(GeoPoint(gpxLocation.latitude, gpxLocation.longitude));
+                //myTrack.addPoint(gpxLocation)
+            }
+            i -= 3
+            if (i < 1){
+                i = 1
+            }
+            for (j in i until cpxGeoPoint.locationList.size) {
+                val segment = Polyline(mMapView);
+                mMapView.overlays.add(segment);
+                segment.addPoint(GeoPoint(cpxGeoPoint.locationList[j].latitude, cpxGeoPoint.locationList[j].longitude));
+                segment.addPoint(GeoPoint(cpxGeoPoint.locationList[j - 1].latitude, cpxGeoPoint.locationList[j - 1].longitude))
+            }
+            gainList.sortBy { it.first }
+            val sizedn = gainList.size
+            for (i in gainList.indices){
+                gainList[i].second.outlinePaint.color = Color.rgb(240 - floor(i * 200.0/sizedn).toInt(), 0, 30 + floor(i * 200.0/sizedn).toInt())
+                Log.d("colour", floor(i * (200.0/sizedn)).toInt().toString())
+                Log.d("colour", gainList[i].second.outlinePaint.color.red.toString())
+            }
+        }
+        Log.d("benchmark", executionTime.toString());
         //simpleJPX.wtb("file://$fileName");
         /*val bogusGPXParser = SimpleGPXParser("file://$fileName");
         val timeparse = LocalDateTime.now();
@@ -158,7 +211,7 @@ class ActivityMapFragment : Fragment() {
                 Log.d("distance", distance.toString());
                 Log.d("pt1", j.trkpts.first().elevation.toString());
                 Log.d("pt2", j.trkpts.last().elevation.toString());
-                val statStruct = calculateStats(j);
+                val statStruct = calculat9eStats(j);
                 Log.d("ele diff ", statStruct.ElevationStruct().totalElevation.toString());
                 distance += statStruct.distance;
                 pace.minutes += statStruct.pace!!.minutes;
@@ -185,20 +238,18 @@ class ActivityMapFragment : Fragment() {
             nwaypoint.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
             mMapView.overlays.add(nwaypoint);
         }
-
+*/
         val mapController = mMapView.controller;
         mLocationOverlay.runOnFirstFix {
             this.activity?.runOnUiThread {
                 mapController.setZoom(15.0);
-                val latitude = parcelableGPX.waypoints[0].latitude;
-                val longitude = parcelableGPX.waypoints[0].longitude;
+                val latitude = cpxGeoPoint.locationList[0].latitude;
+                val longitude = cpxGeoPoint.locationList[0].longitude;
                 mapController.setCenter(GeoPoint(latitude, longitude));
                 mapController.animateTo(GeoPoint(latitude, longitude));
             }
         }
         Log.d("nav",mMapView.parent.toString())
-
-         */
     }
 
     private fun afficherLesStatistiques(distance:String, élévation:String, temps:String){
