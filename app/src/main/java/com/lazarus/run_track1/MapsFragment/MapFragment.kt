@@ -184,14 +184,18 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
                     }
                 }
             }else{
-                val fileName = intent.getStringExtra("trackpoints")
-                Log.d("bundle",fileName!!)
-                val readGPX = SimpleGPXParser("$fileName")
+                val track = when {
+                    Build.VERSION.SDK_INT >= 33 ->
+                        intent.getParcelableExtra("trackpoints", ParcelableGPX::class.java)
+                    else ->
+                        @Suppress("DEPRECATION")
+                        intent.getParcelableExtra("trackpoints")
+                };
+                //val readGPX = SimpleGPXParser("$fileName")
                 //Log.d("bundle", Stringify(fileName))
-                val tracks = readGPX.parseGPX().tracks
-                readGPX.deleteGPXFile();
-                Log.d("bundle", tracks[0].name!!)
-                gpx.addTracks(tracks)
+                //val tracks = readGPX.parseGPX().tracks
+                //readGPX.deleteGPXFile();
+                gpx.addTracks(track!!.tracks)
             }
 
             /*val ptp:ArrayList<ParcelableTrackPoint> =

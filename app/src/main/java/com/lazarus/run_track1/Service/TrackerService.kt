@@ -15,6 +15,7 @@ import com.lazarus.run_track1.MainActivity
 import com.lazarus.run_track1.MapsFragment.BROADCAST_ACTION
 import com.lazarus.run_track1.MessageValues
 import com.lazarus.run_track1.ParcelableTrackPoint
+import com.lazarus.run_track1.createParcelableGPX
 import java.io.File
 
 class TrackerService : Service() {
@@ -132,11 +133,11 @@ class TrackerService : Service() {
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         val gpx = heapToGPX();
         val random = (0..100000).random()
-        val fileName = this.application.filesDir.toString() + "/tracks/" + random.toString() + ".gpx"
-        val simpleGPXWriter = SimpleGPXWriter("file://$fileName");
-        simpleGPXWriter.connectGPX(gpx)
-        simpleGPXWriter.writeGPX()
-        intent.putExtra("trackpoints", "file://$fileName")
+        //val fileName = this.application.filesDir.toString() + "/tracks/" + random.toString() + ".gpx"
+        //val simpleGPXWriter = SimpleGPXWriter("file://$fileName");
+        //simpleGPXWriter.connectGPX(gpx)
+        //simpleGPXWriter.writeGPX()
+        intent.putExtra("trackpoints", createParcelableGPX(gpx))
         Log.d("broadcast", "sendheap")
         sendBroadcast(intent)
         stopForeground(true)

@@ -20,6 +20,8 @@ struct Track_Seg {
     double distance;
     unsigned long long time;
     Elevation elevation;
+    Location *max_elevation;
+    Location *min_elevation;
     Track_Seg *next;
 };
 
