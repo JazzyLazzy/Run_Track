@@ -1,16 +1,21 @@
 package com.lazarus.run_track1
 
+import SimpleGPX.TrackPoint
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.ContentValues.TAG
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -28,12 +33,17 @@ import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.storage
 import com.lazarus.run_track1.HActivitiesFragment.HActivityFragment
 import com.lazarus.run_track1.MapsFragment.MapFragment
+import com.lazarus.run_track1.MapsFragment.roundTo3DecimalPlaces
 import com.lazarus.run_track1.SettingsFragment.SettingsFragment
 import com.lazarus.run_track1.databinding.ActivityMainBinding
 import com.lazarus.simplecpxwrapper.NativeLib
 import org.osmdroid.config.Configuration
+import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Polyline
 import java.io.File
+import java.time.Instant
+import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,6 +51,13 @@ class MainActivity : AppCompatActivity() {
         private set
     private var mMapView:MapView? = null;
     private var mScrollTest:ConstraintLayout? = null;
+    private lateinit var mMapFragment:MapFragment;
+
+    val TrackReceiver: BroadcastReceiver = object : BroadcastReceiver(){
+        override fun onReceive(context: Context?, intent: Intent?) {
+            mMapFragment.handleBroadcastRecieved(context, intent);
+        }
+    }
 
     fun get_map_view():MapView{
         if (mMapView == null){
@@ -90,15 +107,13 @@ class MainActivity : AppCompatActivity() {
         val bottomNavigationView = binding.bottomNavigation;
         bottomNavigationView.setOnItemSelectedListener(navListener);
 
-        val test: MapFragment? =
-            supportFragmentManager.findFragmentByTag("MAP_FRAGMENT") as MapFragment?
-
         //load MapFragment. No need for XML
         if(savedInstanceState == null || savedInstanceState.get("Fragment Loaded") != true){
             Log.d("fragment","duplicating")
             val manager: FragmentManager = supportFragmentManager;
             val transaction: FragmentTransaction = manager.beginTransaction();
-            transaction.add(R.id.fragment_container, MapFragment(), "MAP_FRAGMENT");
+            mMapFragment = MapFragment()
+            transaction.add(R.id.fragment_container, mMapFragment, "MAP_FRAGMENT");
             transaction.addToBackStack(null);
             transaction.commit();
         }
@@ -111,6 +126,9 @@ class MainActivity : AppCompatActivity() {
 
     //Bottom Navigation View handler/listener/dooer thingamabogus
     private val navListener:NavigationBarView.OnItemSelectedListener = object : NavigationBarView.OnItemSelectedListener {
+
+        private var flips = -1;
+
         override fun onNavigationItemSelected(item: MenuItem): Boolean {
             var selectedFragment: Fragment? = null
 
@@ -119,18 +137,22 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.nav_home -> {
                     findViewById<Button>(R.id.start).visibility = VISIBLE;
-                    selectedFragment = MapFragment()
-                    changeFragment(selectedFragment, "Fragment")
+                    mMapFragment = MapFragment()
+                    flips += 1
+                    Log.d("flps", flips.toString())
+                    changeFragment(mMapFragment, "Fragment$flips")
                 }
                 R.id.nav_activities -> {
                     findViewById<Button>(R.id.start).visibility = GONE;
                     selectedFragment = HActivityFragment()
-                    changeFragment(selectedFragment, "Activities")
+                    flips += 1
+                    changeFragment(selectedFragment, "Activities$flips")
                 }
                 R.id.nav_settings -> {
                     findViewById<Button>(R.id.start).visibility = GONE;
                     selectedFragment = SettingsFragment()
-                    changeFragment(selectedFragment, "Settings")
+                    flips += 1
+                    changeFragment(selectedFragment, "Settings$flips")
                 }
             }
             return true

@@ -106,6 +106,7 @@ class TrackerService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId);
         createNotificationChannel()
+        Log.d("trackser:", "started");
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent =
             PendingIntent.getActivity(this.applicationContext, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
@@ -138,9 +139,9 @@ class TrackerService : Service() {
         //simpleGPXWriter.connectGPX(gpx)
         //simpleGPXWriter.writeGPX()
         intent.putExtra("trackpoints", createParcelableGPX(gpx))
-        Log.d("broadcast", "sendheap")
+        Log.d("trackser:", "koed");
         sendBroadcast(intent)
-        stopForeground(true)
+        stopForeground(STOP_FOREGROUND_REMOVE)
     }
 
     fun sendLocationData():GPX{
