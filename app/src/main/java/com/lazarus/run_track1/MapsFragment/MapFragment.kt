@@ -47,6 +47,7 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import org.w3c.dom.Text
 import java.io.File
 import java.io.IOException
+import java.lang.IllegalStateException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -57,6 +58,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.*
 import kotlin.time.measureTime
 
@@ -135,91 +137,104 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         return tService!!.sendLocationData();
     }
 
-    private val TrackReceiver:BroadcastReceiver = object : BroadcastReceiver(){
-        override fun onReceive(context: Context?, intent: Intent?) {
-            val trkpts = ArrayList<TrackPoint>()
-            if (intent!!.action == "LOCATION_UPDATE"){
-                val bundle = intent.getBundleExtra("data point");
-                val trkPoint = bundle!!.getParcelable<ParcelableTrackPoint>("track_point")
-                if (trkPoint != null) {
-                    val geoPoint =
-                        GeoPoint(trkPoint.latitude, trkPoint.longitude, trkPoint.elevation);
-                    if (myTrack != null) {
-                       // Log.d("debug", myTrack.toString());
-                        myTrack?.addPoint(geoPoint);
-                    } else {
+    fun handleBroadcastRecieved(context:Context?, intent:Intent?){
+        val trkpts = ArrayList<TrackPoint>()
+        Log.d("intentinc", intent!!.action.toString())
+        Log.d("intentinc", (intent.action == "SAVE_GPX").toString())
+        if (intent!!.action == "LOCATION_UPDATE"){
+            val bundle = intent.getBundleExtra("data point");
+            val trkPoint = bundle!!.getParcelable<ParcelableTrackPoint>("track_point")
+            if (trkPoint != null) {
+                val geoPoint =
+                    GeoPoint(trkPoint.latitude, trkPoint.longitude, trkPoint.elevation);
+                Log.d("mMapView", mMapView.toString());
+                if (myTrack != null) {
+                    // Log.d("debug", myTrack.toString());
+                    myTrack?.addPoint(geoPoint);
+                } else {
+                    this@MapFragment.requireActivity().runOnUiThread {
                         myTrack = Polyline(mMapView);
                         mMapView.overlays.add(myTrack);
                         myTrack?.addPoint(geoPoint);
                     }
-                    if (previousElevation == null) {
-                        previousElevation = trkPoint.elevation;
-                    } else {
-                        elevationGained += trkPoint.elevation - previousElevation!!;
-                        welevationGained += trkPoint.elevation - previousElevation!!;
-                        previousElevation = trkPoint.elevation;
-                    }
-                    if (previousLocation == null) {
-                        previousLocation = geoPoint;
-                    } else {
-                        distanceTraveled += haversineDistance(previousLocation!!, geoPoint);
-                        wdistanceTraveled += haversineDistance(previousLocation!!, geoPoint);
-                        previousLocation = geoPoint;
-                    }
-                    requireActivity().findViewById<TextView>(R.id.avancement_au_hauteur)?.text =
-                        roundTo3DecimalPlaces(elevationGained) + "\n" + roundTo3DecimalPlaces(welevationGained);
-                    requireActivity().findViewById<TextView>(R.id.avancement_à_distance)?.text =
-                        roundTo3DecimalPlaces(distanceTraveled / 1000) + "\n" + roundTo3DecimalPlaces(wdistanceTraveled/1000);
-                    if (android.os.Build.VERSION.SDK_INT >= 26) {
-                        /*if (originalTime == null){
-                            originalTime = GPXParserLocation.time_to_long(gpx.waypoints[0].time)
-                            waypointTime = GPXParserLocation.time_to_long(gpx.waypoints[gpx.waypoints.size - 1].time)
-                        }*/
-                        val currentPace = roundTo3DecimalPlaces((((Instant.now().epochSecond - originalTime!!)) / 60) / ((distanceTraveled + 0.001) / 1000))
-                        val waypointPace = roundTo3DecimalPlaces((((Instant.now().epochSecond - waypointTime!!)) / 60) / ((wdistanceTraveled + 0.001) / 1000))
-
-                        requireActivity().findViewById<TextView>(R.id.avancement_aux_temps)?.text = currentPace
-                        requireActivity().findViewById<TextView>(R.id.wavancement_aux_temps)?.text = waypointPace;
-
-                    }
                 }
-            }else{
-                val track = when {
-                    Build.VERSION.SDK_INT >= 33 ->
-                        intent.getParcelableExtra("trackpoints", ParcelableGPX::class.java)
-                    else ->
-                        @Suppress("DEPRECATION")
-                        intent.getParcelableExtra("trackpoints")
-                };
-                //val readGPX = SimpleGPXParser("$fileName")
-                //Log.d("bundle", Stringify(fileName))
-                //val tracks = readGPX.parseGPX().tracks
-                //readGPX.deleteGPXFile();
-                gpx.addTracks(track!!.tracks)
-            }
+                if (previousElevation == null) {
+                    previousElevation = trkPoint.elevation;
+                } else {
+                    elevationGained += trkPoint.elevation - previousElevation!!;
+                    welevationGained += trkPoint.elevation - previousElevation!!;
+                    previousElevation = trkPoint.elevation;
+                }
+                if (previousLocation == null) {
+                    previousLocation = geoPoint;
+                } else {
+                    distanceTraveled += haversineDistance(previousLocation!!, geoPoint);
+                    wdistanceTraveled += haversineDistance(previousLocation!!, geoPoint);
+                    previousLocation = geoPoint;
+                }
+                requireActivity().findViewById<TextView>(R.id.avancement_au_hauteur)?.text =
+                    roundTo3DecimalPlaces(elevationGained) + "\n" + roundTo3DecimalPlaces(welevationGained);
+                requireActivity().findViewById<TextView>(R.id.avancement_à_distance)?.text =
+                    roundTo3DecimalPlaces(distanceTraveled / 1000) + "\n" + roundTo3DecimalPlaces(wdistanceTraveled/1000);
+                if (android.os.Build.VERSION.SDK_INT >= 26) {
+                    /*if (originalTime == null){
+                        originalTime = GPXParserLocation.time_to_long(gpx.waypoints[0].time)
+                        waypointTime = GPXParserLocation.time_to_long(gpx.waypoints[gpx.waypoints.size - 1].time)
+                    }*/
+                    val currentPace = roundTo3DecimalPlaces((((Instant.now().epochSecond - originalTime!!)) / 60) / ((distanceTraveled + 0.001) / 1000))
+                    val waypointPace = roundTo3DecimalPlaces((((Instant.now().epochSecond - waypointTime!!)) / 60) / ((wdistanceTraveled + 0.001) / 1000))
 
-            /*val ptp:ArrayList<ParcelableTrackPoint> =
-                intent!!.getParcelableArrayListExtra<ParcelableTrackPoint>("trackpoints")
-                        as ArrayList<ParcelableTrackPoint>
-            Log.d("broadcast", "broad")
-            ptp.forEach(Consumer { parcelableTrackPoint: ParcelableTrackPoint ->
-                val trackPoint = TrackPoint(
-                    parcelableTrackPoint.latitude,
-                    parcelableTrackPoint.longitude,
-                    parcelableTrackPoint.elevation,
-                    parcelableTrackPoint.time
-                )
-                trkpts.add(trackPoint)
-            })
-            val trksegs = ArrayList<trkseg>()
-            val trkseg = trkseg(trkpts)
-            trksegs.add(trkseg)
-            val trk = trk("trk_1", trksegs)
-            gpx.addTrack(trk);*/
-            /*val date = Date(System.currentTimeMillis());
-            val timeStamp: String = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(Date())
-            writeToGPX(timeStamp);*/
+                    requireActivity().findViewById<TextView>(R.id.avancement_aux_temps)?.text = currentPace
+                    requireActivity().findViewById<TextView>(R.id.wavancement_aux_temps)?.text = waypointPace;
+
+                }
+            }
+        }else if (intent.action == "SAVE_GPX"){
+            Log.d("intentinc", "moredebug")
+            /*val track = when {
+                Build.VERSION.SDK_INT >= 33 ->
+                    intent.getParcelableExtra("trackpoints", ParcelableGPX::class.java)
+                else ->
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra("trackpoints")
+            };*/
+            //val bundle = intent.getBundleExtra("trackpoints")
+            val locationHeap = intent.getParcelableArrayListExtra<ParcelableTrackPoint>("trackpoints")
+            val track = createNewTrack(locationHeap!! as ArrayList<TrackPoint>)
+            /*val track = trkseg()
+            for (lh in locationHeap!!){
+                track.trkpts.add(lh)
+            }
+            createNewTrack(track.trkpts)*/
+            //val igpx = createGPXFromParcelable(track!!);
+            //val readGPX = SimpleGPXParser("$fileName")
+            //Log.d("bundle", Stringify(fileName))
+            //val tracks = readGPX.parseGPX().tracks
+            //readGPX.deleteGPXFile();
+            gpx.addTrack(track)
         }
+
+        /*val ptp:ArrayList<ParcelableTrackPoint> =
+            intent!!.getParcelableArrayListExtra<ParcelableTrackPoint>("trackpoints")
+                    as ArrayList<ParcelableTrackPoint>
+        Log.d("broadcast", "broad")
+        ptp.forEach(Consumer { parcelableTrackPoint: ParcelableTrackPoint ->
+            val trackPoint = TrackPoint(
+                parcelableTrackPoint.latitude,
+                parcelableTrackPoint.longitude,
+                parcelableTrackPoint.elevation,
+                parcelableTrackPoint.time
+            )
+            trkpts.add(trackPoint)
+        })
+        val trksegs = ArrayList<trkseg>()
+        val trkseg = trkseg(trkpts)
+        trksegs.add(trkseg)
+        val trk = trk("trk_1", trksegs)
+        gpx.addTrack(trk);*/
+        /*val date = Date(System.currentTimeMillis());
+        val timeStamp: String = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(Date())
+        writeToGPX(timeStamp);*/
     }
 
     //@SuppressLint("HandlerLeak")
@@ -318,6 +333,7 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
 
         Log.d("fragment", "view created")
         mMapView = (this.activity as MainActivity).get_map_view();
+        Log.d("mMapView", mMapView.toString());
         parentLayout.addView(mMapView);
 
         bogusCopyrightOverlay = CopyrightOverlay(context);
@@ -331,6 +347,7 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         mMapView.isTilesScaledToDpi = true;
 
         mMapView.setTileSource(TileSourceFactory.USGS_TOPO)
+        Log.d("mMapView", mMapView.tileProvider.toString());
 
         if (myTrack != null){
             mMapView.overlays.add(myTrack);
@@ -347,6 +364,7 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         requireActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart(){
         super.onStart();
@@ -382,12 +400,13 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         val filter = IntentFilter();
         filter.addAction(BROADCAST_ACTION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
-        if (Build.VERSION.SDK_INT > 32) {
+        val TrackReceiver = (this.activity as MainActivity).TrackReceiver
+        /*if (Build.VERSION.SDK_INT > 32) {
             requireActivity().registerReceiver(TrackReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
         }else{
             requireActivity().registerReceiver(TrackReceiver, filter);
-        }
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(TrackReceiver, IntentFilter("LOCATION_UPDATE"))
+        }*/
+        //LocalBroadcastManager.getInstance(requireContext()).registerReceiver(TrackReceiver, IntentFilter("SAVE_GPX"))
 
         startButton.setOnClickListener{
             startButtonClicked();
@@ -484,9 +503,9 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onResume() {
         super.onResume();
-        startButton.setOnClickListener{
+        /*startButton.setOnClickListener{
             startButtonClicked()
-        }
+        }*/
         mMapView.overlays.add(this.mLocationOverlay);
         Log.d("fragment","resume");
     }
@@ -519,6 +538,7 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         gpx.addWaypoint(startpoint)
         myTrack = Polyline(mMapView);
         mMapView.overlays.add(myTrack);
+        Log.d("mMapView", mMapView.toString());
         originalTime = Instant.now().epochSecond;
         waypointTime = Instant.now().epochSecond;
         Log.d("track:","starte");
@@ -551,8 +571,10 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
     override fun onDestroy() {
         super.onDestroy();
         Log.d("fragment","destroye")
-        requireActivity().unregisterReceiver(TrackReceiver);
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(TrackReceiver)
+        val TrackReceiver = (this.activity as MainActivity).TrackReceiver
+        //requireActivity().unregisterReceiver(TrackReceiver);
+        //LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(TrackReceiver)
+        myTrack = null;
     }
 
     @SuppressWarnings("Deprecated")

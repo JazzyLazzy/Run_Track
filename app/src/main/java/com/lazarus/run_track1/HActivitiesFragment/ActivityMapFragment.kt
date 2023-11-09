@@ -66,7 +66,10 @@ class ActivityMapFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState);
         requireActivity().onBackPressedDispatcher.addCallback {
-            parentFragmentManager.popBackStack();
+            parentFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, HActivityFragment(), "Activities")
+                .commit()
             accèsVuesActivité(activity, View.VISIBLE);
         }
     }
@@ -118,7 +121,6 @@ class ActivityMapFragment : Fragment() {
         val plaqueBas = exempleNouveau();
         plaqueBas.show(parentFragmentManager, plaqueBas.tag)
 
-
         mLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), mMapView)
         mLocationOverlay.enableMyLocation();
         mMapView.overlays.add(this.mLocationOverlay);
@@ -141,7 +143,7 @@ class ActivityMapFragment : Fragment() {
         Log.d("p-point", stringify);
 
         mMapView.overlays.add(myTrack);
-        var cpxGeoPoint:CPXGeoPoint;
+        var cpxGeoPoint:CPXGeoPoint?;
         Log.d("benchmark", System.currentTimeMillis().toString())
         var executionTime = measureTimeMillis {
         val simpleCPXWrapper = NativeLib();
@@ -153,41 +155,68 @@ class ActivityMapFragment : Fragment() {
         Log.d("benchmark", executionTime.toString());
         //val cpxGeoPoint = simpleCPXWrapper.parseGPX("$fileName");
         executionTime = measureTimeMillis {
-            var i:Int = 3
-            var gainList = ArrayList<Pair<Double, Polyline>>(cpxGeoPoint.locationList.size * 2)
-            /*for (i in 3 until cpxGeoPoint.locationList.size step 3){
-                val gain = cpxGeoPoint.locationList[i].elevation - cpxGeoPoint.locationList[i - 3].elevation;
-                gainList[i/3] = gain;
-            }*/
-            while (i < cpxGeoPoint.locationList.size) {
-                val segment = Polyline(mMapView);
-                mMapView.overlays.add(segment);
-                val gain = cpxGeoPoint.locationList[i].elevation - cpxGeoPoint.locationList[i - 3].elevation;
-                segment.addPoint(GeoPoint(cpxGeoPoint.locationList[i].latitude, cpxGeoPoint.locationList[i].longitude));
-                segment.addPoint(GeoPoint(cpxGeoPoint.locationList[i - 1].latitude, cpxGeoPoint.locationList[i - 1].longitude));
-                //segment.addPoint(GeoPoint(cpxGeoPoint.locationList[i - 2].latitude, cpxGeoPoint.locationList[i - 1].longitude));
-                //segment.addPoint(GeoPoint(cpxGeoPoint.locationList[i - 3].latitude, cpxGeoPoint.locationList[i - 1].longitude));
-                gainList.add(Pair(gain, segment))
-                i += 1
-                //myTrack.addPoint(GeoPoint(gpxLocation.latitude, gpxLocation.longitude));
-                //myTrack.addPoint(gpxLocation)
-            }
-            i -= 3
-            if (i < 1){
-                i = 1
-            }
-            for (j in i until cpxGeoPoint.locationList.size) {
-                val segment = Polyline(mMapView);
-                mMapView.overlays.add(segment);
-                segment.addPoint(GeoPoint(cpxGeoPoint.locationList[j].latitude, cpxGeoPoint.locationList[j].longitude));
-                segment.addPoint(GeoPoint(cpxGeoPoint.locationList[j - 1].latitude, cpxGeoPoint.locationList[j - 1].longitude))
-            }
-            gainList.sortBy { it.first }
-            val sizedn = gainList.size
-            for (i in gainList.indices){
-                gainList[i].second.outlinePaint.color = Color.rgb(240 - floor(i * 200.0/sizedn).toInt(), 0, 30 + floor(i * 200.0/sizedn).toInt())
-                Log.d("colour", floor(i * (200.0/sizedn)).toInt().toString())
-                Log.d("colour", gainList[i].second.outlinePaint.color.red.toString())
+            if (cpxGeoPoint != null) {
+                var i: Int = 3
+                var gainList = ArrayList<Pair<Double, Polyline>>(cpxGeoPoint!!.locationList.size * 2)
+                /*for (i in 3 until cpxGeoPoint!!.locationList.size step 3){
+                    val gain = cpxGeoPoint!!.locationList[i].elevation - cpxGeoPoint!!.locationList[i - 3].elevation;
+                    gainList[i/3] = gain;
+                }*/
+                while (i < cpxGeoPoint!!.locationList.size) {
+                    val segment = Polyline(mMapView);
+                    mMapView.overlays.add(segment);
+                    val gain =
+                        cpxGeoPoint!!.locationList[i].elevation - cpxGeoPoint!!.locationList[i - 3].elevation;
+                    segment.addPoint(
+                        GeoPoint(
+                            cpxGeoPoint!!.locationList[i].latitude,
+                            cpxGeoPoint!!.locationList[i].longitude
+                        )
+                    );
+                    segment.addPoint(
+                        GeoPoint(
+                            cpxGeoPoint!!.locationList[i - 1].latitude,
+                            cpxGeoPoint!!.locationList[i - 1].longitude
+                        )
+                    );
+                    //segment.addPoint(GeoPoint(cpxGeoPoint!!.locationList[i - 2].latitude, cpxGeoPoint!!.locationList[i - 1].longitude));
+                    //segment.addPoint(GeoPoint(cpxGeoPoint!!.locationList[i - 3].latitude, cpxGeoPoint!!.locationList[i - 1].longitude));
+                    gainList.add(Pair(gain, segment))
+                    i += 1
+                    //myTrack.addPoint(GeoPoint(gpxLocation.latitude, gpxLocation.longitude));
+                    //myTrack.addPoint(gpxLocation)
+                }
+                i -= 3
+                if (i < 1) {
+                    i = 1
+                }
+                for (j in i until cpxGeoPoint!!.locationList.size) {
+                    val segment = Polyline(mMapView);
+                    mMapView.overlays.add(segment);
+                    segment.addPoint(
+                        GeoPoint(
+                            cpxGeoPoint!!.locationList[j].latitude,
+                            cpxGeoPoint!!.locationList[j].longitude
+                        )
+                    );
+                    segment.addPoint(
+                        GeoPoint(
+                            cpxGeoPoint!!.locationList[j - 1].latitude,
+                            cpxGeoPoint!!.locationList[j - 1].longitude
+                        )
+                    )
+                }
+                gainList.sortBy { it.first }
+                val sizedn = gainList.size
+                for (i in gainList.indices) {
+                    gainList[i].second.outlinePaint.color = Color.rgb(
+                        240 - floor(i * 200.0 / sizedn).toInt(),
+                        0,
+                        30 + floor(i * 200.0 / sizedn).toInt()
+                    )
+                    Log.d("colour", floor(i * (200.0 / sizedn)).toInt().toString())
+                    Log.d("colour", gainList[i].second.outlinePaint.color.red.toString())
+                }
             }
         }
         Log.d("benchmark", executionTime.toString());
@@ -243,10 +272,13 @@ class ActivityMapFragment : Fragment() {
         mLocationOverlay.runOnFirstFix {
             this.activity?.runOnUiThread {
                 mapController.setZoom(15.0);
-                val latitude = cpxGeoPoint.locationList[0].latitude;
-                val longitude = cpxGeoPoint.locationList[0].longitude;
-                mapController.setCenter(GeoPoint(latitude, longitude));
-                mapController.animateTo(GeoPoint(latitude, longitude));
+                if (cpxGeoPoint != null){
+                    val latitude = cpxGeoPoint!!.locationList[0].latitude;
+                    val longitude = cpxGeoPoint!!.locationList[0].longitude;
+                    mapController.setCenter(GeoPoint(latitude, longitude));
+                    mapController.animateTo(GeoPoint(latitude, longitude));
+                }
+
             }
         }
         Log.d("nav",mMapView.parent.toString())

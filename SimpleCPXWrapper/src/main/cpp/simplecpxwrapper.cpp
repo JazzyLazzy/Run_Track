@@ -41,6 +41,9 @@ Java_com_lazarus_simplecpxwrapper_NativeLib_parseGPX(JNIEnv *env, jobject thiz, 
         wpt = wpt->next;
     }
 
+    if (gpx->tracks == NULL){
+        return NULL;
+    }
     Location *loc = gpx->tracks->track_segs->locations;
     jclass jGeoPointClazz = env->FindClass("com/lazarus/simplecpxwrapper/GPXParserLocation");
     jmethodID jGPConstructor = env->GetMethodID(jGeoPointClazz, "<init>", "(DDD)V");

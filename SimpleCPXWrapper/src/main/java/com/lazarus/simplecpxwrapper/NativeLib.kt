@@ -10,7 +10,7 @@ class NativeLib {
      */
     external fun stringFromJNI(): String
     external fun wtb(s:String)
-    external fun parseGPX(s:String):CPXGeoPoint
+    external fun parseGPX(s:String):CPXGeoPoint?
 
     companion object {
         // Used to load the 'simplecpxwrapper' library on application startup.

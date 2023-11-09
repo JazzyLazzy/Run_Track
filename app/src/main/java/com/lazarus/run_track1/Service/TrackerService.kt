@@ -23,7 +23,7 @@ class TrackerService : Service() {
     private lateinit var serviceLooper: Looper;
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient;
     private lateinit var locationRequest: LocationRequest;
-    private lateinit var locationHeap: ArrayList<TrackPoint>;
+    private lateinit var locationHeap: ArrayList<ParcelableTrackPoint>;
     private lateinit var TSEL: TrackerServiceEndListener;
     private lateinit var servicer: Messenger;
     var mClients:ArrayList<Messenger> = ArrayList();
@@ -106,6 +106,7 @@ class TrackerService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId);
         createNotificationChannel()
+        Log.d("trackser:", "started");
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent =
             PendingIntent.getActivity(this.applicationContext, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
@@ -128,19 +129,20 @@ class TrackerService : Service() {
     override fun onDestroy() {
         stopLocationUpdates()
         super.onDestroy()
-        val intent = Intent()
-        intent.action = BROADCAST_ACTION;
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-        val gpx = heapToGPX();
+        val intent = Intent("SAVE_GPX")
+        //intent.action = BROADCAST_ACTION;
+        //intent.addCategory(Intent.CATEGORY_DEFAULT);
+        //val gpx = heapToGPX();
         val random = (0..100000).random()
         //val fileName = this.application.filesDir.toString() + "/tracks/" + random.toString() + ".gpx"
         //val simpleGPXWriter = SimpleGPXWriter("file://$fileName");
         //simpleGPXWriter.connectGPX(gpx)
         //simpleGPXWriter.writeGPX()
-        intent.putExtra("trackpoints", createParcelableGPX(gpx))
-        Log.d("broadcast", "sendheap")
+        //val bundle = Bundle();
+        //bundle.putParcelable("track_points", )
+        intent.putParcelableArrayListExtra("trackpoints", locationHeap)
         sendBroadcast(intent)
-        stopForeground(true)
+        stopForeground(STOP_FOREGROUND_REMOVE)
     }
 
     fun sendLocationData():GPX{
@@ -149,7 +151,7 @@ class TrackerService : Service() {
 
     private fun heapToGPX(): GPX {
         val tracks = ArrayList<trk>()
-        tracks.add(createNewTrack(locationHeap))
+        tracks.add(createNewTrack(locationHeap as ArrayList<TrackPoint>))
         return GPX("run_track", "1.1", tracks);
     }
 
@@ -174,7 +176,7 @@ class TrackerService : Service() {
             locationResult.locations
             Log.d("servicelocation:", locationResult.lastLocation.toString())
             val location = locationResult.lastLocation
-            val trkPoint = TrackPoint(
+            val trkPoint = ParcelableTrackPoint(
                 location!!.latitude,
                 location.longitude,
                 location.altitude,
@@ -206,7 +208,7 @@ class TrackerService : Service() {
     }
 
     private fun writeGPSTrack() {
-        val newLocationHeap = ArrayList<TrackPoint>()
+        val newLocationHeap = ArrayList<ParcelableTrackPoint>()
         locationHeap = newLocationHeap;
     }
 
@@ -223,6 +225,6 @@ class TrackerService : Service() {
         //mClients[0].send(msg);
         val updateIntent = Intent("LOCATION_UPDATE");
         updateIntent.putExtra("data point", bundle);
-        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(updateIntent);
+        sendBroadcast(updateIntent);
     }
 }
