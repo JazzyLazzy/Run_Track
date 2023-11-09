@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.os.Build
@@ -23,6 +24,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.FirebaseApp
@@ -55,6 +57,8 @@ class MainActivity : AppCompatActivity() {
 
     val TrackReceiver: BroadcastReceiver = object : BroadcastReceiver(){
         override fun onReceive(context: Context?, intent: Intent?) {
+            val action = intent?.action
+            Log.d("intentinca", action ?: "no Action")
             mMapFragment.handleBroadcastRecieved(context, intent);
         }
     }
@@ -103,6 +107,14 @@ class MainActivity : AppCompatActivity() {
         initialiseProvider();
         //Generate Keys
         initialiseEncryption(this.applicationContext);
+
+        val iFitler = IntentFilter();
+        iFitler.addAction("LOCATION_UPDATE")
+        iFitler.addAction("SAVE_GPX")
+        iFitler.addAction("action")
+        this.registerReceiver(TrackReceiver, iFitler)
+
+        sendBroadcast(Intent("action"))
 
         val bottomNavigationView = binding.bottomNavigation;
         bottomNavigationView.setOnItemSelectedListener(navListener);
@@ -181,6 +193,16 @@ class MainActivity : AppCompatActivity() {
                 return;
             }
         }
+    }
+
+    override fun onPause(){
+        super.onPause();
+        Log.d("activityy", "paused");
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        this.unregisterReceiver(TrackReceiver)
     }
 
     private fun requestPermissions() {

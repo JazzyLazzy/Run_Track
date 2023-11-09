@@ -58,6 +58,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.*
 import kotlin.time.measureTime
 
@@ -138,6 +139,8 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
 
     fun handleBroadcastRecieved(context:Context?, intent:Intent?){
         val trkpts = ArrayList<TrackPoint>()
+        Log.d("intentinc", intent!!.action.toString())
+        Log.d("intentinc", (intent.action == "SAVE_GPX").toString())
         if (intent!!.action == "LOCATION_UPDATE"){
             val bundle = intent.getBundleExtra("data point");
             val trkPoint = bundle!!.getParcelable<ParcelableTrackPoint>("track_point")
@@ -186,19 +189,29 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
 
                 }
             }
-        }else{
-            val track = when {
+        }else if (intent.action == "SAVE_GPX"){
+            Log.d("intentinc", "moredebug")
+            /*val track = when {
                 Build.VERSION.SDK_INT >= 33 ->
                     intent.getParcelableExtra("trackpoints", ParcelableGPX::class.java)
                 else ->
                     @Suppress("DEPRECATION")
                     intent.getParcelableExtra("trackpoints")
-            };
+            };*/
+            //val bundle = intent.getBundleExtra("trackpoints")
+            val locationHeap = intent.getParcelableArrayListExtra<ParcelableTrackPoint>("trackpoints")
+            val track = createNewTrack(locationHeap!! as ArrayList<TrackPoint>)
+            /*val track = trkseg()
+            for (lh in locationHeap!!){
+                track.trkpts.add(lh)
+            }
+            createNewTrack(track.trkpts)*/
+            //val igpx = createGPXFromParcelable(track!!);
             //val readGPX = SimpleGPXParser("$fileName")
             //Log.d("bundle", Stringify(fileName))
             //val tracks = readGPX.parseGPX().tracks
             //readGPX.deleteGPXFile();
-            gpx.addTracks(track!!.tracks)
+            gpx.addTrack(track)
         }
 
         /*val ptp:ArrayList<ParcelableTrackPoint> =
@@ -388,12 +401,12 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         filter.addAction(BROADCAST_ACTION);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         val TrackReceiver = (this.activity as MainActivity).TrackReceiver
-        if (Build.VERSION.SDK_INT > 32) {
+        /*if (Build.VERSION.SDK_INT > 32) {
             requireActivity().registerReceiver(TrackReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
         }else{
             requireActivity().registerReceiver(TrackReceiver, filter);
-        }
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(TrackReceiver, IntentFilter("LOCATION_UPDATE"))
+        }*/
+        //LocalBroadcastManager.getInstance(requireContext()).registerReceiver(TrackReceiver, IntentFilter("SAVE_GPX"))
 
         startButton.setOnClickListener{
             startButtonClicked();
@@ -559,8 +572,8 @@ class MapFragment : Fragment(), NameTrackDialogue.DialogInfoReceivedListener {
         super.onDestroy();
         Log.d("fragment","destroye")
         val TrackReceiver = (this.activity as MainActivity).TrackReceiver
-        requireActivity().unregisterReceiver(TrackReceiver);
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(TrackReceiver)
+        //requireActivity().unregisterReceiver(TrackReceiver);
+        //LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(TrackReceiver)
         myTrack = null;
     }
 
