@@ -19,15 +19,23 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.tasks.Task
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FileDownloadTask
 import com.google.firebase.storage.ListResult
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import com.lazarus.run_track1.R
 import com.lazarus.run_track1.databinding.HActivityFragmentBinding
 import com.lazarus.run_track1.HActivitiesFragment.AdaptateurListeActivités
+import com.lazarus.run_track1.decryptFile
 import com.lazarus.run_track1.encryptFile
+import com.lazarus.run_track1.getPrivateKey
 import com.lazarus.run_track1.getPublicKey
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -36,6 +44,8 @@ import java.nio.file.Paths
 import java.time.LocalDateTime
 import java.nio.ByteBuffer
 import java.security.MessageDigest
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 import kotlin.math.absoluteValue
 
 
@@ -90,7 +100,7 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
         }
 
         //this.activity?.setContentView(binding.root);
-        adaptateurActivités = AdaptateurListeActivités(this.requireContext(), fileNames!!, ::enCliquéAdaptateur, ::mettreAuCloud, ::imprimer);
+        adaptateurActivités = AdaptateurListeActivités(this.requireContext(), fileNames!!, ::enCliquéAdaptateur, ::mettreAuCloud, ::suprimer);
         vueRecyclage.layoutManager = LinearLayoutManager(this.activity);
         vueRecyclage.adapter = adaptateurActivités;
         return binding.root;
@@ -102,7 +112,7 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
         syncCloud = this.requireActivity().findViewById(R.id.sync_cloud);
         syncCloud.setOnClickListener{
             val fileSet = fileNames!!.toHashSet();
-            listCloud()
+            listCloud(fileSet)
         }
 
     }
@@ -206,7 +216,7 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
         //var file = Uri.fromFile(File(fileName));
         var storageRef = storage.reference;
         val fileRef = storageRef.child("gpxs/$nomFichier");
-        val aesRef = storageRef.child("gpxs/aes$nomFichier");
+        val aesRef = storageRef.child("gpxkeys/aes$nomFichier");
         var uploadTask = fileRef.putBytes(encryptedBytes[0]);
         // Register observers to listen for when the download is done or if it fails
         uploadTask.addOnFailureListener {
@@ -224,17 +234,18 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
             // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
             // ...
         }
-        var upload_NoEncrypt = fileRef.putFile(Uri.fromFile(File(fileName)));
+
+        /*var upload_NoEncrypt = fileRef.putFile(Uri.fromFile(File(fileName)));
         upload_NoEncrypt.addOnFailureListener {
             // Handle unsuccessful uploads
             Log.d("upload__", "failed");
         }.addOnSuccessListener { taskSnapshot -> Log.d("upload__", taskSnapshot.metadata.toString())
             // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
             // ...
-        }
+        }*/
     }
 
-    private fun imprimer(nomFichier: String){
+    private fun suprimer(nomFichier: String){
         fileNames!!.remove(nomFichier);
         val file = File(this.context?.filesDir.toString() + "/tracks/$nomFichier");
         Log.d("fiiiles", file.absolutePath);
@@ -242,7 +253,7 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
         else Log.d("fiiiles", "failure");
     }
 
-    private fun listCloud(){
+    private fun listCloud(fileSet: HashSet<String>){
         val listRef = storage.reference.child("/gpxs");
         listRef.listAll().addOnSuccessListener { listResult ->
             for (prefix in listResult.prefixes) {
@@ -251,9 +262,34 @@ class HActivityFragment : Fragment(), AdaptateurListeActivités.EnInfoActivitéC
 
             for (item in listResult.items) {
                 // All the items under listRef.
-                Log.d("fiiiles", item.toString());
+                Log.d("fiiiles", item.name);
+                if (!fileSet.contains(item.name)){
+                    val keyRef = storage.reference.child("/gpxkeys/aes${item.name}")
+                    val gpxRef = storage.reference.child("/gpxs/${item.name}")
+                    val keyFile = File(this.context?.filesDir.toString() + "/tracks/aes${item.name}")
+                    keyFile.createNewFile()
+                    val gpxFile = File(this.context?.filesDir.toString() + "/tracks/${item.name}")
+                    gpxFile.createNewFile()
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val keyTaskResult = keyRef.getFile(keyFile)
+                                .addOnSuccessListener { Log.d("download__", "success")
+                                    val gpxTaskResult = gpxRef.getFile(gpxFile)
+                                    .addOnSuccessListener { Log.d("download__", "success")
+                                        val byteArray =
+                                            decryptFile(keyFile, gpxFile, getPrivateKey(this@HActivityFragment.context))
+                                        val gpxFile1 =
+                                            File(this@HActivityFragment.context?.filesDir.toString() + "/tracks/${item.name}")
+                                        gpxFile1.writeBytes(byteArray);
+                                    }
+                                    .addOnFailureListener { Log.d("download__", "failure")}}
+                                .addOnFailureListener { Log.d("download__", "failure")}
+                        } catch (e: Exception) {
+                            // Handle any exception that might occur during the process
+                        }
+                    }
+                }
             }
-
         }
     }
 

@@ -14,7 +14,7 @@ import com.lazarus.run_track1.R
 
 
 class AdaptateurListeActivités (private val context: Context, private val ensembleDonnées: ArrayList<String>,
-            private val enCliqué: (String) -> Unit, private val mettreAuCloud: (String) -> Unit, private val imprimer: (String) -> Unit) :
+            private val enCliqué: (String) -> Unit, private val mettreAuCloud: (String) -> Unit, private val suprimer: (String) -> Unit) :
         RecyclerView.Adapter<AdaptateurListeActivités.PorteVueActivité>() {
 
     private lateinit var activityMapFragment:ActivityMapFragment;
@@ -23,7 +23,7 @@ class AdaptateurListeActivités (private val context: Context, private val ensem
         fun enInfoActivitéClicqué(nomFichier: String)
     }
 
-    inner class PorteVueActivité(itemView: View, val enCliqué: (String) -> Unit, val mettreAuCloud: (String) -> Unit, val imprimer: (String) ->Unit,
+    inner class PorteVueActivité(itemView: View, val enCliqué: (String) -> Unit, val mettreAuCloud: (String) -> Unit, val suprimer: (String) ->Unit,
              private val écouteur:EnInfoActivitéClicquéÉcouteur = HActivityFragment()) : RecyclerView.ViewHolder(itemView) {
         private val lActivité: AppCompatButton = itemView.findViewById(R.id.une_activité);
         private val infoActivité:ConstraintLayout= itemView.findViewById(R.id.info_d_activité)
@@ -55,7 +55,7 @@ class AdaptateurListeActivités (private val context: Context, private val ensem
             trackSettingsDropdown.setOnClickListener {
                 nomActivité?.let{
                     this@AdaptateurListeActivités.notifyItemRemoved(this.adapterPosition);
-                    imprimer(it)
+                    suprimer(it)
                 }
             }
             voirActivité.setOnClickListener{
@@ -87,7 +87,7 @@ class AdaptateurListeActivités (private val context: Context, private val ensem
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PorteVueActivité {
         val vue = LayoutInflater.from(context)
             .inflate(R.layout.objet_activite, parent, false);
-        return PorteVueActivité(vue, enCliqué, mettreAuCloud, imprimer);
+        return PorteVueActivité(vue, enCliqué, mettreAuCloud, suprimer);
     }
 
     override fun onBindViewHolder(holder: PorteVueActivité, position: Int) {

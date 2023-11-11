@@ -45,15 +45,21 @@ fun encryptFile(file:File, publicKey:PublicKey):Array<ByteArray>{
     val byteArray = cipher.doFinal(fileBytes)
     // Encrypt AES key
     val cipherRSA = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC")
-    cipherRSA.init(Cipher.ENCRYPT_MODE, publicKey)
-    return arrayOf(byteArray, cipher.doFinal(byteArray));
+    cipherRSA.init(Cipher.WRAP_MODE, publicKey)
+    return arrayOf(byteArray, cipherRSA.wrap(secretKey));
 }
 
-fun decryptFile(file:File, privateKey: PrivateKey):ByteArray{
-    val fileBytes = file.readBytes();
+fun decryptFile(keyFile:File, dataFile:File, privateKey: PrivateKey):ByteArray{
+    val fileBytes = keyFile.readBytes();
     val cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC")
-    cipher.init(Cipher.DECRYPT_MODE, privateKey)
-    return cipher.doFinal(fileBytes);
+    cipher.init(Cipher.UNWRAP_MODE, privateKey)
+    val secretKey = cipher.unwrap(fileBytes, "AES", Cipher.SECRET_KEY);
+    val cipherAES = Cipher.getInstance("AES")
+    cipherAES.init(Cipher.DECRYPT_MODE, secretKey);
+    val bytesRead = dataFile.readBytes();
+    if (keyFile.delete()) Log.d("fiiiles", "deleted key")
+    dataFile.delete();
+    return cipherAES.doFinal(bytesRead);
 }
 
 fun getPublicKey(context: Context?):PublicKey{
